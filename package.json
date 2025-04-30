@@ -1,0 +1,50 @@
+{
+  "name": "vue3-tree-master",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A tree view component for Vue 3 applications",
+  "main": "./dist/vue3-tree-master.umd.cjs",
+  "module": "./dist/vue3-tree-master.js",
+  "types": "./dist/vue3-tree-master.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/vue3-tree-master.js",
+      "require": "./dist/vue3-tree.master.umd.cjs"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "tree",
+    "view"
+  ],
+  "author": "Domingo Albújar<dmingoalb@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "path": "^0.12.7",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0",
+    "vite-plugin-dts": "^4.5.3",
+    "vue-tsc": "^2.2.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lloaldo/vue3-tree-master.git"
+  },
+  "homepage": "https://github.com/lloaldo/vue3-tree-master#readme"
+}

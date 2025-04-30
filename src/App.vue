@@ -1,0 +1,260 @@
+<template>
+  <div>
+    <div class="tree3">
+      <input
+        class="tree-search-input"
+        type="text"
+        v-model="searchword"
+        placeholder="search..."
+      />
+      <button class="tree-search-btn" type="button" @click="search">search</button>
+      <Tree
+        ref="tree1"
+        :can-delete-root="true"
+        :data="treeData1"
+        :draggable="true"
+        :tpl="tpl"
+        :halfcheck="true"
+        :multiple="true"
+      />
+    </div>
+    <div class="tree3">
+      <Tree
+        ref="tree2"
+        :data="treeData2"
+        :multiple="false"
+        @node-check="nodechecked"
+        @async-load-nodes="asyncLoad2"
+      />
+    </div>
+    <div class="tree3">
+      <SelectTree :data="treeData3" v-model="initSelected" :multiple="true" />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, h, onMounted } from 'vue';
+import Tree from './components/Tree.vue';
+import SelectTree from './components/SelectTree.vue';
+import type { TreeNode, TreeContext } from './components/types';
+
+// Datos reactivos
+const searchword = ref<string>('');
+const initSelected = ref<string[]>(['node 1-1']);
+
+const treeData1 = reactive<TreeNode[]>([
+  {
+    title: 'node1',
+    expanded: true,
+    children: [
+      {
+        title: 'node 1-1',
+        expanded: true,
+        children: [
+          { title: 'node 1-1-1' },
+          { title: 'node 1-1-2' },
+          { title: 'node 1-1-3' },
+        ],
+      },
+      {
+        title: 'node 1-2',
+        children: [
+          { title: "<span style='color: red'>node 1-2-1</span>" },
+          { title: "<span style='color: red'>node 1-2-2</span>" },
+        ],
+      },
+    ],
+  },
+]);
+
+const treeData2 = reactive<TreeNode[]>([
+  {
+    title: 'node1',
+    expanded: false,
+    async: true,
+  },
+]);
+
+const treeData3 = reactive<TreeNode[]>([
+  {
+    title: 'node1',
+    expanded: true,
+    children: [
+      {
+        title: 'node 1-1',
+        expanded: true,
+        children: [
+          { title: 'node 1-1-1' },
+          { title: 'node 1-1-2' },
+          { title: 'node 1-1-3' },
+        ],
+      },
+    ],
+  },
+]);
+
+// Referencias a los componentes
+const tree1 = ref<InstanceType<typeof Tree> | null>(null);
+const tree2 = ref<InstanceType<typeof Tree> | null>(null);
+
+// Inicializar visibilidad y estado de expansión de los nodos
+const initializeTree = (nodes: TreeNode[]) => {
+  for (const node of nodes) {
+    node.visible = true;
+    if (node.expanded) {
+      node.hasExpanded = true;
+    }
+    if (node.children) {
+      initializeTree(node.children);
+    }
+  }
+};
+
+onMounted(() => {
+  initializeTree(treeData1);
+  initializeTree(treeData2);
+  initializeTree(treeData3);
+});
+
+// Métodos
+const nodechecked = (node: TreeNode, checked: boolean) => {
+  alert(`That a node-check event ... ${node.title} ${checked}`);
+};
+
+const tpl = (node: TreeNode, ctx: any, parent: TreeNode | null, index: number) => {
+  const titleClass = node.selected
+    ? 'node-title node-selected'
+    : 'node-title' + (node.searched ? ' node-searched' : '');
+  return h('span', [
+    h(
+      'button',
+      {
+        class: 'treebtn1',
+        onClick: () => tree1.value?.addNode(node, { title: 'sync node' }),
+      },
+      '+'
+    ),
+    h(
+      'span',
+      {
+        class: titleClass,
+        innerHTML: node.title,
+        onClick: () => tree1.value?.nodeSelected(node, { level: ctx.level, index }),
+      }
+    ),
+    h(
+      'button',
+      {
+        class: 'treebtn2',
+        onClick: () => asyncLoad1(node),
+      },
+      'async'
+    ),
+    h(
+      'button',
+      {
+        class: 'treebtn3',
+        onClick: () => tree1.value?.delNode(node, parent, index),
+      },
+      'delete'
+    ),
+  ]);
+};
+
+const asyncLoad1 = async (node: TreeNode) => {
+  const { checked = false } = node;
+  node.loading = true;
+  const newNodes = await new Promise<string[]>((resolve) =>
+    setTimeout(() => resolve(['async node1', 'async node2']), 2000)
+  );
+  tree1.value?.addNodes(node, newNodes);
+  node.loading = false;
+  if (checked) {
+    tree1.value?.childCheckedHandle(node, checked);
+  }
+};
+
+const asyncLoad2 = async (node: TreeNode) => {
+  console.log('Cargando nodos asíncronos para:', node.title);
+  const { checked = false } = node;
+  node.loading = true;
+  const newNodes = await new Promise<TreeNode[]>((resolve) =>
+    setTimeout(() =>
+      resolve([
+        { title: 'test1', async: true },
+        { title: 'test2', async: true },
+        { title: 'test3' },
+      ]),
+      2000
+    )
+  );
+  console.log('Nodos cargados:', newNodes);
+  tree2.value?.addNodes(node, newNodes);
+  node.loading = false;
+  if (checked) {
+    tree2.value?.childCheckedHandle(node, checked);
+  }
+};
+
+const search = () => {
+  tree1.value?.searchNodes(searchword.value);
+};
+</script>
+
+<style scoped>
+.tree3 {
+  float: left;
+  width: 33%;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px dotted #ccccdd;
+  overflow: auto;
+  height: 800px;
+}
+
+.treebtn1 {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  padding: 1px 3px;
+  border-radius: 5px;
+  margin-right: 5px;
+  color: rgb(148, 147, 147);
+}
+
+.treebtn2 {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  padding: 3px 5px;
+  border-radius: 5px;
+  margin-left: 5px;
+  color: rgb(97, 97, 97);
+}
+
+.treebtn3 {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  padding: 3px 5px;
+  border-radius: 5px;
+  margin-left: 5px;
+  color: rgb(63, 63, 63);
+}
+
+.tree-search-input {
+  width: 70%;
+  padding: 6px 8px;
+  outline: none;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.tree-search-btn {
+  width: 25%;
+  padding: 6px 8px;
+  outline: none;
+  border-radius: 6px;
+  background-color: rgb(218, 218, 218);
+  border: 1px solid rgb(226, 225, 225);
+  color: rgb(117, 117, 117);
+}
+</style>

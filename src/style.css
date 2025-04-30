@@ -1,0 +1,253 @@
+/* vue3-year-calendar/src/style.css */
+
+/* Contenedor principal del calendario */
+.yc-container {
+  border-radius: 2px;
+  min-width: 0;
+  background-color: #f6f6f3;
+}
+
+/* Selector de años */
+.yc-year {
+  user-select: none;
+  height: 65px;
+  background-color: #fff;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.yc-year-chooser {
+  flex: 1;
+  max-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.yc-year-chooser:hover {
+  background-color: rgba(102, 102, 102, 0.1);
+}
+
+.yc-year-chooser:nth-child(4n-3) {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.yc-year-chooser:nth-child(2n) {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.yc-year-chooser:nth-child(3) {
+  box-shadow: inset 0px -3px #4792bd;
+}
+
+/* Contenedor de meses */
+.yc-months {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 15px;
+}
+
+.yc-month {
+  padding: 8px;
+  flex: 16.66%;
+  transition: transform 0.2s ease-in-out; /* Transición para el zoom */
+}
+
+.yc-month:hover {
+  transform: scale(1.10);
+  z-index: 1;
+}
+
+.yc-empty {
+  padding: 0;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 1300px) {
+  .yc-month {
+    flex: 25%;
+  }
+}
+
+@media (max-width: 992px) {
+  .yc-month {
+    flex: 33.3%;
+  }
+}
+
+@media (max-width: 768px) {
+  .yc-month {
+    flex: 50%;
+  }
+}
+
+@media (max-width: 450px) {
+  .yc-month {
+    flex: 100%;
+  }
+}
+
+/* Estilos del calendario mensual */
+.yc-wrapper {
+  padding: 10px;
+}
+
+.yc-calendar {
+  background-color: #fff;
+  min-height: 295px;
+  text-align: center;
+  color: rgba(53, 60, 70, 0.8);
+  border-radius: 2px;
+  min-width: 0;
+}
+
+.yc-calendar__title {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(196, 196, 196, 0.3);
+  font-size: 18px;
+  height: 50px;
+  margin-bottom: 12px;
+}
+
+.yc-calendar__body {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  padding: 0 20px;
+  min-width: 194px;
+}
+
+.yc-calendar__day {
+  flex: 14.28%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  height: 31px;
+  color: #5db3d4;
+}
+
+.yc-day__weektitle {
+  color: rgba(53, 60, 70, 0.8);
+}
+
+.yc-day {
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  border-radius: 5px;
+}
+
+/* Estilos para días activos */
+.yc-day.your_customized_wrapper_class {
+  background-color: #0aa; /* Cyan */
+  color: white;
+}
+
+.yc-day.your_customized_wrapper_class.red {
+  background-color: rgb(233, 35, 35); /* Rojo */
+  color: white;
+}
+
+.yc-day.your_customized_wrapper_class.blue {
+  background-color: #2e5dc9; /* Azul */
+  color: white;
+}
+
+.yc-day.your_customized_wrapper_class.your_customized_classname {
+  background-color: rgb(97, 220, 155); /* Verde */
+  color: white;
+}
+
+.yc-day.your_customized_wrapper_class.custom-day {
+  background-color: rgb(0, 255, 21); /* Amarillo brillante */
+  color: white;
+}
+
+.yc-day:not(.your_customized_wrapper_class):hover {
+  background-color: rgba(102, 102, 102, 0.1);
+  border-radius: 5px;
+}
+
+.yc-calendar__day--otherMonth {
+  color: #eaeaea;
+  cursor: auto;
+}
+
+/* Estilos para modo oscuro */
+.yc-dark .yc-container {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.yc-dark .yc-year__button {
+  background-color: #333;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+.yc-dark .yc-year__select {
+  background-color: #333;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+.yc-dark .yc-wrapper {
+  background-color: #2a2a2a;
+  border: none; /* Eliminar cualquier borde que pueda interferir */
+}
+
+.yc-dark .yc-calendar__title {
+  color: #e0e0e0;
+}
+
+.yc-dark .yc-day__weektitle {
+  color: #aaa;
+}
+
+.yc-dark .yc-day {
+  color: #e0e0e0;
+}
+
+.yc-dark .yc-month:hover {
+  transform: scale(1.10);
+  z-index: 1;
+}
+
+.yc-day:hover {
+  background-color: rgba(102, 102, 102, 0.1);
+  border-radius: 5px;
+}
+
+.yc-dark .yc-day:hover {
+  background-color: #444;
+}
+
+.yc-dark .yc-calendar__day--otherMonth {
+  color: #666;
+}
+
+.yc-dark .yc-calendar {
+  background-color: #333;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  box-sizing: border-box; /* Evitar que el borde afecte el tamaño */
+}
+
+.yc-dark .yc-calendar__title {
+  color: #e0e0e0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
