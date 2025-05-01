@@ -21,7 +21,7 @@
           @change="changeNodeCheckStatus(item, $event)"
         />
       </span>
-      <loading v-if="item.loading && item.expanded" />
+      <Loading :visible="item.loading && item.expanded" />
       <component
         :is="renderComponent"
         :node="item"
@@ -170,11 +170,6 @@ const renderComponent = computed(() => {
     });
   }
   return Render;
-});
-
-// Log para depurar
-onMounted(() => {
-  console.log('Renderizando TreeLi con item:', props.item);
 });
 
 // Watchers

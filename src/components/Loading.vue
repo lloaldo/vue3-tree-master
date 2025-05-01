@@ -18,13 +18,11 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
+
 defineProps<{
   visible?: boolean;
 }>();
-
-const defaultProps = {
-  visible: true,
-};
 </script>
 
 <style scoped>
@@ -33,6 +31,11 @@ svg {
   width: 14px;
   overflow: visible;
   line-height: 14px;
+  margin-left: 5px;
+  vertical-align: middle;
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 circle {
@@ -102,29 +105,10 @@ circle:nth-child(12n + 12) {
   animation-delay: -1.2s;
 }
 
-.g-circles--v2 circle {
-  fill-opacity: 0;
-  stroke-opacity: 0;
-  stroke-width: 1;
-  stroke: yellowgreen;
-  -webkit-animation-name: opacity-stroke, colors, colors-stroke, transform-2;
-  animation-name: opacity-stroke, colors, colors-stroke, transform-2;
-}
-
 .g-circles--v3 circle {
   fill-opacity: 1;
   -webkit-animation-name: opacity, colors;
   animation-name: opacity, colors;
-}
-
-.g-circles--v4 circle {
-  fill-opacity: 1;
-  fill: orange;
-  -webkit-transform-origin: 60px 60px;
-  -ms-transform-origin: 60px 60px;
-  transform-origin: 60px 60px;
-  -webkit-animation-name: opacity, colors-3, transform;
-  animation-name: opacity, colors-3, transform;
 }
 
 @-webkit-keyframes opacity {
@@ -142,24 +126,6 @@ circle:nth-child(12n + 12) {
   }
   75% {
     fill-opacity: 0;
-  }
-}
-
-@-webkit-keyframes opacity-stroke {
-  10% {
-    stroke-opacity: 1;
-  }
-  85% {
-    stroke-opacity: 0;
-  }
-}
-
-@keyframes opacity-stroke {
-  10% {
-    stroke-opacity: 1;
-  }
-  85% {
-    stroke-opacity: 0;
   }
 }
 
@@ -184,124 +150,6 @@ circle:nth-child(12n + 12) {
   }
   75% {
     fill: crimson;
-  }
-}
-
-@-webkit-keyframes colors-stroke {
-  0% {
-    stroke: yellowgreen;
-  }
-  10% {
-    stroke: gold;
-  }
-  75% {
-    stroke: crimson;
-  }
-}
-
-@keyframes colors-stroke {
-  0% {
-    stroke: yellowgreen;
-  }
-  10% {
-    stroke: gold;
-  }
-  75% {
-    stroke: crimson;
-  }
-}
-
-@-webkit-keyframes colors-2 {
-  0% {
-    fill: yellow;
-  }
-  50% {
-    fill: red;
-  }
-  65% {
-    fill: orangered;
-  }
-  95% {
-    fill: gold;
-  }
-}
-
-@keyframes colors-2 {
-  0% {
-    fill: yellow;
-  }
-  50% {
-    fill: red;
-  }
-  65% {
-    fill: orangered;
-  }
-  95% {
-    fill: gold;
-  }
-}
-
-@-webkit-keyframes colors-3 {
-  0% {
-    fill: yellowgreen;
-  }
-  50% {
-    fill: turquoise;
-  }
-  65% {
-    fill: yellow;
-  }
-  95% {
-    fill: orange;
-  }
-}
-
-@keyframes colors-3 {
-  0% {
-    fill: yellowgreen;
-  }
-  50% {
-    fill: turquoise;
-  }
-  65% {
-    fill: yellow;
-  }
-  95% {
-    fill: orange;
-  }
-}
-
-@-webkit-keyframes transform {
-  10% {
-    -webkit-transform: scale(0.75);
-    transform: scale(0.75);
-  }
-}
-
-@keyframes transform {
-  10% {
-    -webkit-transform: scale(0.75);
-    transform: scale(0.75);
-  }
-}
-
-@-webkit-keyframes transform-2 {
-  40% {
-    -webkit-transform: scale(0.85);
-    transform: scale(0.85);
-  }
-  60% {
-    stroke-width: 20;
-  }
-}
-
-@keyframes transform-2 {
-  40% {
-    -webkit-transform: scale(0.85);
-    transform: scale(0.85);
-  }
-  60% {
-    stroke-width: 20;
   }
 }
 </style>

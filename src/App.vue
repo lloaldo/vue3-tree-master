@@ -160,7 +160,6 @@ const tpl = (node: TreeNode, ctx: { level: number; index: number }, parent: Tree
       'delete'
     ),
   ]);
-  console.log('Generando contenido para nodo:', node.title, nodeContent);
   return nodeContent;
 };
 
@@ -178,7 +177,6 @@ const asyncLoad1 = async (node: TreeNode) => {
 };
 
 const asyncLoad2 = async (node: TreeNode) => {
-  console.log('Cargando nodos asíncronos para:', node.title);
   const { checked = false } = node;
   node.loading = true;
   const newNodes = await new Promise<TreeNode[]>((resolve) =>
@@ -191,9 +189,8 @@ const asyncLoad2 = async (node: TreeNode) => {
       2000
     )
   );
-  console.log('Nodos cargados:', newNodes);
-  tree2.value?.addNodes(node, newNodes);
   node.loading = false;
+  tree2.value?.addNodes(node, newNodes);
   if (checked) {
     tree2.value?.childCheckedHandle(node, checked);
   }

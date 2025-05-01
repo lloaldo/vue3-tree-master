@@ -66,11 +66,6 @@ const { emitEventToTree } = treeContext;
 // Mixins como composable
 const { getDragNode } = useTreeMixins();
 
-// Log para depurar
-onMounted(() => {
-  console.log('Renderizando TreeUl con datos:', props.data);
-});
-
 // Métodos
 function dragover(ev: DragEvent) {
   ev.preventDefault();

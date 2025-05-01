@@ -23,15 +23,14 @@ export default defineConfig({
     build: {
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
-            name: 'Vue3YearCalendar',
-            fileName: 'vue3-year-calendar',
+            name: 'Vue3TreeMaster',
+            fileName: 'vue3-tree-master',
         },
         rollupOptions: {
-            external: ['vue', 'dayjs'],
+            external: ['vue'],
             output: {
                 globals: {
                     vue: 'Vue',
-                    dayjs: 'dayjs',
                 },
             },
         },
