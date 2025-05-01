@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import type { TreeNode } from './types';
+import type { TreeNode } from '../types';
 
 export function useTreeMixins() {
   const dragNodes = ref<Map<string, { node: TreeNode; parent: TreeNode | null }>>(new Map());

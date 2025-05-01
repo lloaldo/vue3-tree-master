@@ -34,10 +34,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, h, onMounted } from 'vue';
+import { ref, reactive, h, onMounted, VNode } from 'vue';
 import Tree from './components/Tree.vue';
 import SelectTree from './components/SelectTree.vue';
-import type { TreeNode, TreeContext } from './components/types';
+import type { TreeNode, TreeExposedMethods } from './components/types';
 
 // Datos reactivos
 const searchword = ref<string>('');
@@ -95,8 +95,8 @@ const treeData3 = reactive<TreeNode[]>([
 ]);
 
 // Referencias a los componentes
-const tree1 = ref<InstanceType<typeof Tree> | null>(null);
-const tree2 = ref<InstanceType<typeof Tree> | null>(null);
+const tree1 = ref<TreeExposedMethods | null>(null);
+const tree2 = ref<TreeExposedMethods | null>(null);
 
 // Inicializar visibilidad y estado de expansión de los nodos
 const initializeTree = (nodes: TreeNode[]) => {
@@ -122,11 +122,11 @@ const nodechecked = (node: TreeNode, checked: boolean) => {
   alert(`That a node-check event ... ${node.title} ${checked}`);
 };
 
-const tpl = (node: TreeNode, ctx: any, parent: TreeNode | null, index: number) => {
+const tpl = (node: TreeNode, ctx: { level: number; index: number }, parent: TreeNode | null, index: number): VNode => {
   const titleClass = node.selected
     ? 'node-title node-selected'
     : 'node-title' + (node.searched ? ' node-searched' : '');
-  return h('span', [
+  const nodeContent = h('span', [
     h(
       'button',
       {
@@ -139,9 +139,9 @@ const tpl = (node: TreeNode, ctx: any, parent: TreeNode | null, index: number) =
       'span',
       {
         class: titleClass,
-        innerHTML: node.title,
         onClick: () => tree1.value?.nodeSelected(node, { level: ctx.level, index }),
-      }
+      },
+      node.title ?? 'Sin título'
     ),
     h(
       'button',
@@ -160,6 +160,8 @@ const tpl = (node: TreeNode, ctx: any, parent: TreeNode | null, index: number) =
       'delete'
     ),
   ]);
+  console.log('Generando contenido para nodo:', node.title, nodeContent);
+  return nodeContent;
 };
 
 const asyncLoad1 = async (node: TreeNode) => {
@@ -256,5 +258,17 @@ const search = () => {
   background-color: rgb(218, 218, 218);
   border: 1px solid rgb(226, 225, 225);
   color: rgb(117, 117, 117);
+}
+
+/* Forzar visibilidad */
+.halo-tree,
+.halo-tree ul,
+.halo-tree li,
+.tree-node-el,
+.node-title {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
 }
 </style>

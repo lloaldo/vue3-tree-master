@@ -1,44 +1,40 @@
 <template>
-  <transition
-    name="collapse"
-    @before-enter="beforeEnter"
-    @enter="enter"
-    @after-enter="afterEnter"
-    @before-leave="beforeLeave"
-    @leave="leave"
-    @after-leave="afterLeave"
+  <Transition
+    name="expand"
+    @enter="onEnter"
+    @after-enter="onAfterEnter"
+    @leave="onLeave"
+    @after-leave="onAfterLeave"
   >
-    <slot />
-  </transition>
+    <slot></slot>
+  </Transition>
 </template>
 
 <script setup lang="ts">
-const beforeEnter = (el: HTMLElement) => {
-  el.style.height = '0';
-  el.style.overflow = 'hidden';
+const onEnter = (el: Element) => {
+  const htmlEl = el as HTMLElement;
+  htmlEl.style.height = 'auto';
+  const height = getComputedStyle(htmlEl).height;
+  htmlEl.style.height = '0px';
+  htmlEl.offsetHeight;
+  htmlEl.style.height = height;
 };
 
-const enter = (el: HTMLElement) => {
-  el.style.height = `${el.scrollHeight}px`;
+const onAfterEnter = (el: Element) => {
+  const htmlEl = el as HTMLElement;
+  htmlEl.style.height = 'auto';
 };
 
-const afterEnter = (el: HTMLElement) => {
-  el.style.height = '';
-  el.style.overflow = '';
+const onLeave = (el: Element) => {
+  const htmlEl = el as HTMLElement;
+  htmlEl.style.height = getComputedStyle(htmlEl).height;
+  htmlEl.offsetHeight;
+  htmlEl.style.height = '0px';
 };
 
-const beforeLeave = (el: HTMLElement) => {
-  el.style.height = `${el.scrollHeight}px`;
-  el.style.overflow = 'hidden';
-};
-
-const leave = (el: HTMLElement) => {
-  el.style.height = '0';
-};
-
-const afterLeave = (el: HTMLElement) => {
-  el.style.height = '';
-  el.style.overflow = '';
+const onAfterLeave = (el: Element) => {
+  const htmlEl = el as HTMLElement;
+  htmlEl.style.height = '';
 };
 </script>
 

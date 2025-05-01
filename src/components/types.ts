@@ -1,23 +1,21 @@
 // src/components/types.ts
 export interface TreeNode {
-  id?: string | number;
   title?: string;
-  label?: string;
-  children?: TreeNode[];
+  expanded?: boolean;
+  hasExpanded?: boolean;
   checked?: boolean;
   halfcheck?: boolean;
-  selected?: boolean;
-  expanded?: boolean;
   visible?: boolean;
   searched?: boolean;
+  selected?: boolean;
+  async?: boolean;
+  loading?: boolean;
+  nocheck?: boolean;
   chkDisabled?: boolean;
   parentCheckedToChildren?: boolean;
-  parent?: TreeNode | null | (() => TreeNode | null);
-  loading?: boolean;
-  async?: boolean;
-  nocheck?: boolean;
-  hasExpanded?: boolean;
-  selDisabled?: boolean;
+  children?: TreeNode[];
+  id?: string | number;
+  parent?: TreeNode;
   [key: string]: any;
 }
 
@@ -28,4 +26,17 @@ export interface TreeContext {
   emitEventToTree: (eventName: string, ...args: any[]) => void;
   nodeSelected: (node: TreeNode, position: any) => void;
   setAttr: (node: TreeNode, attr: string, val?: any) => void;
+}
+
+export interface TreeExposedMethods {
+  setNodeAttr(node: TreeNode, attr: string, val: any): void;
+  nodeSelected(node: TreeNode, position: { level: number; index: number }): void;
+  addNode(parent: TreeNode | null, newNode: TreeNode | string): void;
+  addNodes(parent: TreeNode | null, children: (TreeNode | string)[]): void;
+  delNode(node: TreeNode, parent: TreeNode | null, index: number): void;
+  getNodes(opt?: Record<string, any>, data?: TreeNode[], isOriginal?: boolean, ignoreInvisibleNode?: boolean): TreeNode[];
+  getSelectedNodes(isOriginal: boolean, ignoreInvisibleNode?: boolean): TreeNode[];
+  getCheckedNodes(isOriginal: boolean, ignoreInvisibleNode?: boolean): TreeNode[];
+  searchNodes(filter: string | ((node: TreeNode) => boolean), data?: TreeNode[]): void;
+  childCheckedHandle(node: TreeNode, checked: boolean, halfcheck?: boolean): void;
 }

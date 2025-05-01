@@ -33,34 +33,31 @@
       />
     </div>
     <template v-if="showNextUl">
-      <collapse-transition>
-        <TreeUl
-          v-show="item.expanded"
-          :drag-after-expanded="dragAfterExpanded"
-          :draggable="draggable"
-          :tpl="tpl"
-          :data="item.children"
-          :halfcheck="halfcheck"
-          :scoped="scoped"
-          :parent="item"
-          :can-delete-root="canDeleteRoot"
-          :multiple="multiple"
-          :level="level + 1"
-          :max-level="maxLevel"
-          :top-must-expand="topMustExpand"
-          :allow-get-parent-node="allowGetParentNode"
-        />
-      </collapse-transition>
+      <TreeUl
+        v-show="item.expanded"
+        :drag-after-expanded="dragAfterExpanded"
+        :draggable="draggable"
+        :tpl="tpl"
+        :data="item.children ?? []"
+        :halfcheck="halfcheck"
+        :scoped="scoped"
+        :parent="item"
+        :can-delete-root="canDeleteRoot"
+        :multiple="multiple"
+        :level="level + 1"
+        :max-level="maxLevel"
+        :top-must-expand="topMustExpand"
+        :allow-get-parent-node="allowGetParentNode"
+      />
     </template>
   </li>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, watch, h } from 'vue';
+import { computed, inject, watch, defineComponent, VNode, onMounted } from 'vue';
 import TreeUl from './TreeUl.vue';
 import Render from './Render.vue';
 import Loading from './Loading.vue';
-import CollapseTransition from './CollapseTransition.vue';
 import { useTreeMixins } from './composables/useTreeMixins';
 import type { TreeNode, TreeContext } from './types';
 
@@ -76,7 +73,7 @@ const props = defineProps<{
   halfcheck?: boolean;
   scoped?: boolean;
   canDeleteRoot?: boolean;
-  tpl?: (node: TreeNode, ctx: any, parent: TreeNode | null, index: number, props: any) => any;
+  tpl?: (node: TreeNode, ctx: { level: number; index: number }, parent: TreeNode | null, index: number, props: any) => VNode;
   maxLevel?: number;
   level?: number;
   topMustExpand?: boolean;
@@ -160,10 +157,11 @@ const spanInputClass = computed(() =>
 const renderComponent = computed(() => {
   if (props.tpl) {
     return defineComponent({
-      render() {
+      props: ['node', 'parent', 'index', 'tpl', 'nodeMouseOver', 'level'],
+      render(this: { level: number; index: number }) {
         return props.tpl!(
           props.item,
-          this,
+          { level: this.level, index: this.index },
           props.parent,
           props.index ?? defaultProps.index,
           props
@@ -172,6 +170,11 @@ const renderComponent = computed(() => {
     });
   }
   return Render;
+});
+
+// Log para depurar
+onMounted(() => {
+  console.log('Renderizando TreeLi con item:', props.item);
 });
 
 // Watchers
