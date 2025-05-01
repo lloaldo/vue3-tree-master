@@ -1,283 +1,283 @@
-# vue3-trre-master
+# Vue3-Tree a Vue 3 Tree Component Library
 
-A customizable year calendar component for Vue 3 applications, allowing users to display and interact with a full-year calendar. It supports date selection, multiple languages, dark mode, and custom styling for active dates.
+Vue3-Tree is a Vue 3 component library designed to create interactive tree structures with support for asynchronous node loading, multiple selection, search, drag-and-drop, and more. This component is ideal for applications that need to display hierarchical data dynamically and with customization options.
 
+## Key Features
 
-![Demo](vue3-year-calendar-gif.gif)
-
-## Features
-
-- **Full-Year Display**: Shows all 12 months of a year in a grid layout.
-- **Date Selection**: Toggle dates with custom styling for active dates.
-- **Dark Mode**: Built-in support for dark mode with customizable styles.
-- **Multilingual Support**: Supports multiple languages (English, Spanish, Portuguese, German, Traditional Chinese).
-- **Year Selector**: Optional year selector to navigate between years.
-- **Custom Styling**: Customize the appearance of active dates with predefined or custom classes.
-- **Responsive Design**: Adapts to different screen sizes with media queries.
-- **Hover Effects**: Hover effects on both individual days and entire month cards (with zoom effect).
+- **Asynchronous Node Loading**: Load child nodes asynchronously with an animated loading indicator.
+- **Multiple Selection**: Supports checkboxes for multiple selection with intermediate states (halfcheck).
+- **Node Search**: Filter nodes based on a search term.
+- **Drag and Drop**: Reorder nodes using drag-and-drop.
+- **Animated Transitions**: Includes transitions for expanding/collapsing nodes.
+- **Customization**: Custom node rendering via a template function (`tpl`).
+- **Maximum Level Support**: Limit the depth of the tree.
+- **Vue 3 Compatibility**: Built with the Composition API.
 
 ## Installation
 
 ### Prerequisites
-- **Vue 3**: This component is built for Vue 3 projects.
-- **Day.js**: Used for date handling.
-- **TypeScript**: The component is written in TypeScript for type safety.
 
-### Install via npm
-```bash
-npm install vue3-year-calendar
-```
+- Node.js (version 16 or higher)
+- Vue 3
+- pnpm (or npm/yarn as an alternative)
 
-Alternatively, you can install it locally by cloning the repository and linking it to your project:
+### Steps
 
-```bash
-git clone https://github.com/your-username/vue3-year-calendar.git
-cd vue3-year-calendar
-npm install
-npm link
-```
+1. **Clone the Repository** (if using a repository):
 
-In your project directory:
-```bash
-npm link vue3-year-calendar
-```
+   ```bash
+   git clone <repository-url>
+   cd vue3-tree-master
+   ```
 
-### Dependencies
-Make sure to install the required dependencies:
-```bash
-npm install vue dayjs
-```
+2. **Install Dependencies**:
+
+   Use pnpm (recommended) to install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+   Alternatively, with npm:
+
+   ```bash
+   npm install
+   ```
+
+3. **Run the Project**:
+
+   Start the development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+   Or with npm:
+
+   ```bash
+   npm run dev
+   ```
+
+   This will launch the application at `http://localhost:5173` (or the configured port).
 
 ## Usage
 
-### Basic Setup
-1. Import and register the `YearCalendar` component in your Vue 3 project.
+Vue3-Tree provides several components to create interactive tree structures. Below, we describe how to use the main `Tree.vue` component and its features.
 
-```javascript
-// main.ts
-import { createApp } from 'vue';
-import App from './App.vue';
-import 'vue3-year-calendar/dist/vue3-year-calendar.css'; // Import styles
+### Basic Example
 
-const app = createApp(App);
-app.mount('#app');
-```
-
-2. Use the `YearCalendar` component in your Vue template.
+Create a simple tree with static nodes:
 
 ```vue
-<!-- YourComponent.vue -->
+<!-- App.vue -->
 <template>
   <div>
-    <YearCalendar
-      v-model="year"
-      v-model:active-dates="activeDates"
-      @toggle-date="toggleDate"
-      :lang="lang"
-      :darkmode="darkmode"
-      :show-year-selector="true"
-      :active-class="activeClass"
-      prefix-class="your_customized_wrapper_class"
+    <Tree :data="treeData" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { reactive } from 'vue';
+import Tree from './components/Tree.vue';
+import type { TreeNode } from './components/types';
+
+const treeData = reactive<TreeNode[]>([
+  {
+    title: 'Node 1',
+    expanded: true,
+    children: [
+      { title: 'Node 1-1' },
+      { title: 'Node 1-2' },
+    ],
+  },
+  {
+    title: 'Node 2',
+  },
+]);
+</script>
+```
+
+This will render a tree with two main nodes: `Node 1` (expanded, with two children) and `Node 2`.
+
+### Asynchronous Node Loading
+
+Vue-Tree supports asynchronous loading of nodes. To enable it, define a node with the `async: true` property and handle the `async-load-nodes` event.
+
+```vue
+<!-- App.vue -->
+<template>
+  <div>
+    <Tree
+      :data="treeData"
+      @async-load-nodes="asyncLoad"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { YearCalendar } from 'vue3-year-calendar';
+import { reactive } from 'vue';
+import Tree from './components/Tree.vue';
+import type { TreeNode } from './components/types';
 
-interface ActiveDate {
-  date: string;
-  className?: string;
-}
-
-const year = ref(2023);
-const lang = ref('en');
-const darkmode = ref(false);
-const activeClass = ref('red');
-const activeDates = ref<ActiveDate[]>([
-  { date: '2023-01-15', className: 'red' },
-  { date: '2023-02-20', className: 'blue' },
+const treeData = reactive<TreeNode[]>([
+  {
+    title: 'Node 1',
+    expanded: false,
+    async: true,
+    loading: false,
+  },
 ]);
 
-const toggleDate = (dateInfo: { date: string; selected: boolean; className?: string }) => {
-  const newDates = [...activeDates.value];
-  const dateIndex = newDates.findIndex((d) => d.date === dateInfo.date);
-
-  if (dateInfo.selected && dateIndex === -1) {
-    const newDate: ActiveDate = {
-      date: dateInfo.date,
-      className: dateInfo.className || activeClass.value || undefined,
-    };
-    newDates.push(newDate);
-  } else if (!dateInfo.selected && dateIndex !== -1) {
-    newDates.splice(dateIndex, 1);
-  }
-
-  activeDates.value = newDates;
+const asyncLoad = async (node: TreeNode) => {
+  node.loading = true;
+  const newNodes = await new Promise<TreeNode[]>((resolve) =>
+    setTimeout(() =>
+      resolve([
+        { title: 'Child 1', loading: false, expanded: false },
+        { title: 'Child 2', loading: false, expanded: false },
+      ]),
+      2000
+    )
+  );
+  node.children = newNodes;
+  node.loading = false;
 };
 </script>
 ```
 
-### Props
-| Prop              | Type               | Default                        | Description                                                                 |
-|-------------------|--------------------|--------------------------------|-----------------------------------------------------------------------------|
-| `value`           | `string | number` | Current year (e.g., `2023`)    | The year to display in the calendar.                                        |
-| `activeDates`     | `Array`           | `[]`                           | List of active dates (format: `YYYY-MM-DD`). Can include custom classes.    |
-| `lang`            | `string`          | `'en'`                        | Language for month and day names (`'en'`, `'es'`, `'pt'`, `'de'`, `'tw'`). |
-| `activeClass`     | `string`          | `''`                           | Default class for active dates (`'red'`, `'blue'`, `'your_customized_classname'`, `'custom-day'`). |
-| `prefixClass`     | `string`          | `'yc-calendar--active'`        | Prefix for active date classes.                                             |
-| `showYearSelector`| `boolean`         | `true`                        | Show/hide the year selector at the top.                                     |
-| `darkmode`        | `boolean`         | `false`                       | Enable dark mode for the calendar.                                          |
+- **Loading Indicator**: While `node.loading` is `true`, an animated SVG loading indicator will be displayed next to the node.
 
-### Events
-| Event         | Parameters                                              | Description                              |
-|---------------|--------------------------------------------------------|------------------------------------------|
-| `toggleDate`  | `{ date: string, selected: boolean, className?: string }` | Emitted when a date is toggled (selected/unselected). |
-| `overDay`     | `{ date: string, selected: boolean, className?: string }` | Emitted when hovering over a day.        |
+### Multiple Selection
 
-### Styling
-The component comes with a default stylesheet (`dist/vue3-year-calendar.css`). You can customize the styles by overriding the following classes:
+Enable multiple selection with checkboxes using the `multiple` prop:
 
-- `.yc-container`: Main container of the calendar.
-- `.yc-month`: Container for each month.
-- `.yc-calendar`: Calendar container for each month.
-- `.yc-day`: Individual day elements.
-- `.yc-dark`: Dark mode styles.
-
-Example of custom styling:
-```css
-.yc-day.red {
-  background-color: #ff0000;
-  color: white;
-}
-
-.yc-dark .yc-container {
-  background-color: #121212;
-}
+```vue
+<Tree
+  :data="treeData"
+  :multiple="true"
+  :halfcheck="true"
+  @node-check="onNodeCheck"
+/>
 ```
 
-## Example with PrimeVue
+```typescript
+const onNodeCheck = (node: TreeNode, checked: boolean) => {
+  console.log(`Node ${node.title} checked: ${checked}`);
+};
+```
 
-You can integrate `vue3-year-calendar` with PrimeVue for a more polished UI. Below is an example of using the calendar in a PrimeVue-based component:
+- `multiple`: Enables checkboxes for multiple selection.
+- `halfcheck`: Allows intermediate states (when some children are selected).
+- `@node-check`: Event emitted when a node's selection state changes.
+
+### Node Search
+
+Add a search field to filter nodes:
 
 ```vue
 <template>
-  <div class="flex flex-col p-4">
-    <div class="card">
-      <div class="font-semibold text-xl mb-4">Calendar Controls</div>
-      <Toolbar>
-        <template #start>
-          <Button
-            :icon="darkmode ? 'pi pi-sun' : 'pi pi-moon'"
-            class="mr-2"
-            severity="secondary"
-            text
-            @click="toggleDarkMode"
-            :label="darkmode ? 'Light Mode' : 'Dark Mode'"
-          />
-        </template>
-      </Toolbar>
-    </div>
-
-    <div class="card mt-8">
-      <div class="font-semibold text-xl mb-4">Year Calendar</div>
-      <YearCalendar
-        v-model="year"
-        v-model:active-dates="activeDates"
-        @toggle-date="toggleDate"
-        :lang="'en'"
-        :darkmode="darkmode"
-        :show-year-selector="true"
-        :active-class="'red'"
-        prefix-class="your_customized_wrapper_class"
-      />
-    </div>
+  <div>
+    <input
+      type="text"
+      v-model="searchword"
+      placeholder="Search..."
+      @input="search"
+    />
+    <Tree ref="tree" :data="treeData" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { YearCalendar } from 'vue3-year-calendar';
-import Button from 'primevue/button';
-import Toolbar from 'primevue/toolbar';
+import { ref, reactive } from 'vue';
+import Tree from './components/Tree.vue';
+import type { TreeNode, TreeExposedMethods } from './components/types';
 
-interface ActiveDate {
-  date: string;
-  className?: string;
-}
+const searchword = ref<string>('');
+const tree = ref<TreeExposedMethods | null>(null);
 
-const year = ref(2023);
-const darkmode = ref(false);
-const activeDates = ref<ActiveDate[]>([
-  { date: '2023-01-15', className: 'red' },
+const treeData = reactive<TreeNode[]>([
+  { title: 'Node 1', children: [{ title: 'Node 1-1' }] },
+  { title: 'Node 2' },
 ]);
 
-const toggleDate = (dateInfo: { date: string; selected: boolean; className?: string }) => {
-  const newDates = [...activeDates.value];
-  const dateIndex = newDates.findIndex((d) => d.date === dateInfo.date);
-
-  if (dateInfo.selected && dateIndex === -1) {
-    newDates.push({ date: dateInfo.date, className: 'red' });
-  } else if (!dateInfo.selected && dateIndex !== -1) {
-    newDates.splice(dateIndex, 1);
-  }
-
-  activeDates.value = newDates;
-};
-
-const toggleDarkMode = () => {
-  darkmode.value = !darkmode.value;
-  const themeLink = document.getElementById('theme-css');
-  if (themeLink) {
-    themeLink.href = darkmode.value
-      ? 'primevue/resources/themes/lara-dark-blue/theme.css'
-      : 'primevue/resources/themes/lara-light-blue/theme.css';
-  }
+const search = () => {
+  tree.value?.searchNodes(searchword.value);
 };
 </script>
 ```
 
-## Development
+- `searchNodes`: Method exposed by `Tree` to search for nodes matching the input term.
 
-### Build the Component
-To build the component for production:
+### Node Customization
 
-```bash
-npm run build
+Customize the appearance of nodes using the `tpl` prop:
+
+```vue
+<template>
+  <div>
+    <Tree :data="treeData" :tpl="customTemplate" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { reactive, h, type VNode } from 'vue';
+import Tree from './components/Tree.vue';
+import type { TreeNode } from './components/types';
+
+const treeData = reactive<TreeNode[]>([
+  { title: 'Node 1', children: [{ title: 'Node 1-1' }] },
+]);
+
+const customTemplate = (node: TreeNode): VNode => {
+  return h('span', { style: { color: 'blue' } }, node.title);
+};
+</script>
 ```
 
-This will generate the compiled files in the `dist` directory.
+- `tpl`: A function that takes the node and returns a customized `VNode`.
 
-### Run Locally
-To test the component locally:
+## API
 
-```bash
-npm run dev
-```
+### `Tree` Props
 
-### Project Structure
-- `src/components/YearCalendar.vue`: Main calendar component.
-- `src/components/MonthCalendar.vue`: Subcomponent for rendering each month.
-- `src/style.css`: Styles for the calendar.
-- `dist/`: Output directory for the built component.
+| Prop                | Type                                                                 | Description                                                                 | Default     |
+|---------------------|----------------------------------------------------------------------|-----------------------------------------------------------------------------|-------------|
+| `data`              | `TreeNode[]`                                                        | Tree data (nodes).                                                         | `[]`        |
+| `multiple`          | `boolean`                                                           | Enables multiple selection with checkboxes.                                | `false`     |
+| `halfcheck`         | `boolean`                                                           | Enables intermediate states for checkboxes.                                | `false`     |
+| `draggable`         | `boolean`                                                           | Enables drag-and-drop for nodes.                                           | `false`     |
+| `dragAfterExpanded` | `boolean`                                                           | Allows dragging after expanding a node.                                    | `true`      |
+| `tpl`               | `(node: TreeNode, ctx: { level: number; index: number }, parent: TreeNode | null, index: number, props: any) => VNode` | Function to render custom nodes. | `undefined` |
+| `maxLevel`          | `number`                                                            | Maximum depth of the tree.                                                 | `10`        |
+| `topMustExpand`     | `boolean`                                                           | Forces top-level nodes to expand.                                          | `false`     |
+| `canDeleteRoot`     | `boolean`                                                           | Allows deleting root nodes.                                                | `false`     |
+
+### `Tree` Events
+
+| Event             | Parameters                                  | Description                                          |
+|-------------------|---------------------------------------------|------------------------------------------------------|
+| `node-check`      | `(node: TreeNode, checked: boolean)`        | Emitted when a checkbox state changes.               |
+| `node-expand`     | `(node: TreeNode, expanded: boolean)`       | Emitted when a node is expanded or collapsed.        |
+| `async-load-nodes`| `(node: TreeNode)`                          | Emitted when a node with `async: true` is expanded.  |
+
+### `Tree` Exposed Methods
+
+| Method         | Description                              |
+|----------------|------------------------------------------|
+| `addNode`      | Adds a new node.                         |
+| `addNodes`     | Adds multiple nodes.                     |
+| `delNode`      | Deletes a node.                          |
+| `searchNodes`  | Searches for nodes by a keyword.         |
+| `nodeSelected` | Selects a node.                          |
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
-
 1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/your-feature`).
-3. Make your changes and commit them (`git commit -m 'Add your feature'`).
-4. Push to your branch (`git push origin feature/your-feature`).
-5. Open a Pull Request.
+2. Create a feature branch (`git checkout -b feature/new-feature`).
+3. Make your changes and commit (`git commit -m 'Add new feature'`).
+4. Push to your branch (`git push origin feature/new-feature`).
+5. Create a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Built with [Vue 3](https://vuejs.org/) and [Day.js](https://day.js.org/).
-- Inspired by the need for a simple, customizable year calendar for Vue applications.
-- This component is inspired by [vue-material-year-calendar](https://github.com/nono1526/vue-material-year-calendar) by nono1526.
+HaloTree is licensed under the MIT License. See the `LICENSE` file for details.

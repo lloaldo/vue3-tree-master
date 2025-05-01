@@ -21,6 +21,7 @@
     <div class="tree3">
       <Tree
         ref="tree2"
+        :can-delete-root="true"
         :data="treeData2"
         :multiple="false"
         @node-check="nodechecked"
