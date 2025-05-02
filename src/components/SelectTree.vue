@@ -163,8 +163,11 @@ const nodeCheckStatusChange = () => {
 };
 
 const searchNodes = () => {
-  const filter = props.searchFilter ?? searchword.value;
-  dropTree.value?.searchNodes(filter);
+  const filter = searchword.value; // Usamos solo searchword.value como string
+  if (dropTree.value && filter) {
+    dropTree.value.searchNodes(filter);
+  }
+  // Si searchFilter está definido, podríamos usarlo en el futuro (ver notas)
 };
 
 const tagClick = (e: MouseEvent) => {

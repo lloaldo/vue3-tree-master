@@ -19,7 +19,7 @@ export function useTreeMixins() {
         while (current) {
             if (current === dragNode)
                 return true;
-            current = current.parent ? (typeof current.parent === 'function' ? current.parent() : current.parent) : undefined;
+            current = current.parent ?? undefined;
         }
         return false;
     }

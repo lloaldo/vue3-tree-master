@@ -21,10 +21,10 @@ export function useTreeMixins() {
   }
 
   function hasInGenerations(dragNode: TreeNode, targetNode: TreeNode): boolean {
-    let current: TreeNode | undefined = targetNode;
+    let current: TreeNode | null | undefined = targetNode;
     while (current) {
       if (current === dragNode) return true;
-      current = current.parent ? (typeof current.parent === 'function' ? current.parent() : current.parent) : undefined;
+      current = current.parent ?? undefined;
     }
     return false;
   }

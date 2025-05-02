@@ -2,7 +2,7 @@
   <ul class="tree-ul" :class="{ 'tree-root': !parent }">
     <TreeLi
       v-for="(item, index) in data"
-      :key="item.id ? item.id : index"
+      :key="item.id ?? index"
       @drop.stop="drop(item, $event)"
       @dragover.stop="dragover"
       :item="item"
@@ -17,7 +17,7 @@
       :can-delete-root="canDeleteRoot"
       :tpl="tpl"
       :max-level="maxLevel"
-      :level="level + 1"
+      :level="(props.level ?? defaultProps.level) + 1"
       :top-must-expand="topMustExpand"
       :allow-get-parent-node="allowGetParentNode"
     />
@@ -74,14 +74,25 @@ function dragover(ev: DragEvent) {
 
 function drop(targetNode: TreeNode, ev: DragEvent) {
   const guid = ev.dataTransfer?.getData('guid');
-  const { dragNode, parentNode } = getDragNode(guid) || {};
+  if (!guid) return; // Salir si guid es null o undefined
+  const { node, parent } = getDragNode(guid) || {};
   ev.preventDefault();
   ev.stopPropagation();
-  if (!dragNode || !parentNode) return;
+  if (!node || !parent) return;
   const dragAfterExpanded = props.dragAfterExpanded ?? true;
   if (dragAfterExpanded) {
     targetNode.expanded = true;
   }
-  emitEventToTree('drag-node-end', { dragNode, targetNode, parentNode, event: ev });
+  emitEventToTree('drag-node-end', { dragNode: node, targetNode, parentNode: parent, event: ev });
 }
 </script>
+
+<style scoped>
+.tree-ul {
+  padding-left: 20px;
+}
+
+.tree-root {
+  padding-left: 0;
+}
+</style>

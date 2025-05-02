@@ -39,10 +39,10 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'node-check', node: TreeNode, checked: boolean, position: Position): void;
-  (e: 'drop-tree-node-checked', node: TreeNode, checked: boolean, position: Position): void; // Nuevo evento para SelectTree
+  (e: 'drop-tree-node-checked', node: TreeNode, checked: boolean, position: Position): void;
   (e: 'node-expand', node: TreeNode, expanded: boolean, position: Position): void;
   (e: 'node-mouse-over', node: TreeNode, index: number, parent: TreeNode | null): void;
-  (e: 'async-load-nodes', node: TreeNode): void;
+  (e: 'async-load-nodes', node: TreeNode, expanded: boolean, position: Position): void;
 }>();
 
 // Definimos treeData como un ref para que getCheckedNodes y getSelectedNodes funcionen
@@ -108,24 +108,29 @@ const parentChecked = (node: TreeNode | null | undefined, checked: boolean, half
 
 const emitEventToTree = (event: string, ...args: any[]) => {
   const position: Position = { level: 0, index: 0 };
-  if (args.length > 0 && typeof args[args.length - 1] === 'object' && 'level' in args[args.length - 1]) {
-    position.level = args[args.length - 1].level;
-    position.index = args[args.length - 1].index;
+  let lastArg = args[args.length - 1];
+
+  // Solo verificamos las propiedades level e index si el evento no es node-mouse-over
+  if (event !== 'node-mouse-over' && lastArg && typeof lastArg === 'object' && 'level' in lastArg) {
+    position.level = lastArg.level;
+    position.index = lastArg.index;
     args.pop();
   }
+
   if (event === 'node-check') {
     emit('node-check', args[0], args[1], position);
-    emit('drop-tree-node-checked', args[0], args[1], position); // Emitimos el evento que SelectTree espera
+    emit('drop-tree-node-checked', args[0], args[1], position);
   } else if (event === 'node-expand') {
     emit('node-expand', args[0], args[1], position);
   } else if (event === 'async-load-nodes') {
-    emit('async-load-nodes', args[0]);
+    emit('async-load-nodes', args[0], args[1], position);
   } else if (event === 'node-mouse-over') {
-    emit('node-mouse-over', args[0], args[1], args[2]);
+    emit('node-mouse-over', args[0], args[1], args[2]); // parent ya es TreeNode | null
   }
 };
 
 const nodeSelected = (node: TreeNode, position: Position) => {
+  if (node.selDisabled) return;
   if (props.multiple) {
     node.selected = !node.selected;
   } else {
@@ -210,7 +215,7 @@ const getCheckedNodes = (leafOnly: boolean, includeHalfChecked: boolean): TreeNo
     }
   }
 
-  traverse(treeData.value); // Ahora treeData está definido
+  traverse(treeData.value);
   return checkedNodes;
 };
 
@@ -232,8 +237,30 @@ const getSelectedNodes = (leafOnly: boolean, includeHalfChecked: boolean): TreeN
     }
   }
 
-  traverse(treeData.value); // Ahora treeData está definido
+  traverse(treeData.value);
   return selectedNodes;
+};
+
+const setNodeAttr = (node: TreeNode, attr: keyof TreeNode, val: any) => {
+  node[attr] = val;
+};
+
+const getNodes = (condition?: (node: TreeNode) => boolean): TreeNode[] => {
+  const result: TreeNode[] = [];
+
+  function traverse(nodes: TreeNode[]) {
+    for (const node of nodes) {
+      if (!condition || condition(node)) {
+        result.push(node);
+      }
+      if (node.children) {
+        traverse(node.children);
+      }
+    }
+  }
+
+  traverse(treeData.value);
+  return result;
 };
 
 const treeContext: TreeContext = {
@@ -256,7 +283,9 @@ const methods: TreeExposedMethods = {
   searchNodes,
   nodeSelected,
   getCheckedNodes,
-  getSelectedNodes, // Agregamos getSelectedNodes
+  getSelectedNodes,
+  setNodeAttr,
+  getNodes,
 };
 
 defineExpose(methods);

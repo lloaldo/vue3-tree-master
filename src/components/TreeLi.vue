@@ -25,11 +25,11 @@
       <component
         :is="renderComponent"
         :node="item"
-        :parent="parent"
+        :parent="props.parent ?? null"
         :index="index"
         :tpl="tpl"
         :node-mouse-over="nodeMouseOver"
-        :level="level"
+        :level="props.level ?? defaultProps.level"
       />
     </div>
     <template v-if="showNextUl">
@@ -44,7 +44,7 @@
         :parent="item"
         :can-delete-root="canDeleteRoot"
         :multiple="multiple"
-        :level="level + 1"
+        :level="(props.level ?? defaultProps.level) + 1"
         :max-level="maxLevel"
         :top-must-expand="topMustExpand"
         :allow-get-parent-node="allowGetParentNode"
@@ -130,7 +130,7 @@ const liClass = computed(() => {
   };
 });
 
-const hasChildren = computed(() => props.item.children?.length > 0);
+const hasChildren = computed(() => (props.item.children && props.item.children.length > 0) || false);
 
 const showExpand = computed(() => {
   const isShow = !props.parent ? (props.topMustExpand ?? defaultProps.topMustExpand) : false;
@@ -162,7 +162,7 @@ const renderComponent = computed(() => {
         return props.tpl!(
           props.item,
           { level: this.level, index: this.index },
-          props.parent,
+          props.parent ?? null,
           props.index ?? defaultProps.index,
           props
         );
@@ -194,7 +194,7 @@ watch(
 // Métodos
 function drag(node: TreeNode, ev: DragEvent) {
   const guidValue = guid();
-  setDragNode(guidValue, node, props.parent);
+  setDragNode(guidValue, node, props.parent ?? null);
   ev.dataTransfer?.setData('guid', guidValue);
 }
 
