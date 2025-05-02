@@ -39,10 +39,22 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'node-check', node: TreeNode, checked: boolean, position: Position): void;
+  (e: 'drop-tree-node-checked', node: TreeNode, checked: boolean, position: Position): void; // Nuevo evento para SelectTree
   (e: 'node-expand', node: TreeNode, expanded: boolean, position: Position): void;
   (e: 'node-mouse-over', node: TreeNode, index: number, parent: TreeNode | null): void;
   (e: 'async-load-nodes', node: TreeNode): void;
 }>();
+
+// Definimos treeData como un ref para que getCheckedNodes y getSelectedNodes funcionen
+const treeData = ref<TreeNode[]>(props.data);
+
+watch(
+  () => props.data,
+  (newVal) => {
+    treeData.value = newVal;
+  },
+  { immediate: true }
+);
 
 const setAttr = (node: TreeNode, attr: keyof TreeNode, val: any) => {
   node[attr] = val;
@@ -95,7 +107,22 @@ const parentChecked = (node: TreeNode | null | undefined, checked: boolean, half
 };
 
 const emitEventToTree = (event: string, ...args: any[]) => {
-  emit(event as any, ...args);
+  const position: Position = { level: 0, index: 0 };
+  if (args.length > 0 && typeof args[args.length - 1] === 'object' && 'level' in args[args.length - 1]) {
+    position.level = args[args.length - 1].level;
+    position.index = args[args.length - 1].index;
+    args.pop();
+  }
+  if (event === 'node-check') {
+    emit('node-check', args[0], args[1], position);
+    emit('drop-tree-node-checked', args[0], args[1], position); // Emitimos el evento que SelectTree espera
+  } else if (event === 'node-expand') {
+    emit('node-expand', args[0], args[1], position);
+  } else if (event === 'async-load-nodes') {
+    emit('async-load-nodes', args[0]);
+  } else if (event === 'node-mouse-over') {
+    emit('node-mouse-over', args[0], args[1], args[2]);
+  }
 };
 
 const nodeSelected = (node: TreeNode, position: Position) => {
@@ -165,6 +192,50 @@ const searchNodes = (keyword: string) => {
   search(props.data);
 };
 
+const getCheckedNodes = (leafOnly: boolean, includeHalfChecked: boolean): TreeNode[] => {
+  const checkedNodes: TreeNode[] = [];
+
+  function traverse(nodes: TreeNode[]) {
+    for (const node of nodes) {
+      const isLeafNode = !node.children?.length;
+      const shouldInclude =
+        (node.checked || (includeHalfChecked && node.halfcheck)) &&
+        (!leafOnly || (leafOnly && isLeafNode));
+      if (shouldInclude) {
+        checkedNodes.push(node);
+      }
+      if (node.children) {
+        traverse(node.children);
+      }
+    }
+  }
+
+  traverse(treeData.value); // Ahora treeData está definido
+  return checkedNodes;
+};
+
+const getSelectedNodes = (leafOnly: boolean, includeHalfChecked: boolean): TreeNode[] => {
+  const selectedNodes: TreeNode[] = [];
+
+  function traverse(nodes: TreeNode[]) {
+    for (const node of nodes) {
+      const isLeafNode = !node.children?.length;
+      const shouldInclude =
+        (node.selected || (includeHalfChecked && node.halfcheck)) &&
+        (!leafOnly || (leafOnly && isLeafNode));
+      if (shouldInclude) {
+        selectedNodes.push(node);
+      }
+      if (node.children) {
+        traverse(node.children);
+      }
+    }
+  }
+
+  traverse(treeData.value); // Ahora treeData está definido
+  return selectedNodes;
+};
+
 const treeContext: TreeContext = {
   isLeaf,
   childChecked,
@@ -184,6 +255,8 @@ const methods: TreeExposedMethods = {
   delNode,
   searchNodes,
   nodeSelected,
+  getCheckedNodes,
+  getSelectedNodes, // Agregamos getSelectedNodes
 };
 
 defineExpose(methods);
