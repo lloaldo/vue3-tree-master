@@ -28,16 +28,18 @@
         <Tree
           ref="dropTree"
           v-bind="vTreeObj"
-          :data="data"
+          :data="treeData"
           :drag-after-expanded="dragAfterExpanded"
           :draggable="draggable"
           :tpl="tpl"
           :multiple="multiple"
           @drop-tree-node-checked="nodeCheckStatusChange"
-          @async-load-nodes="asyncLoadNodes"
-          @node-expanded="asyncLoadNodes"
+          @async-load-nodes="handleAsyncLoadNodes"
+          @node-expanded="handleNodeExpanded"
           @node-click="nodeClick"
           @node-check="nodeClick"
+          @drag-node-end="handleDragNodeEnd"
+          @node-drop="handleNodeDrop"
         />
       </div>
     </transition>
@@ -47,7 +49,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import Tree from './Tree.vue';
-import type { TreeNode } from './types';
+import type { TreeNode, Position } from './types';
 
 // Props
 const props = defineProps<{
@@ -80,13 +82,16 @@ const emit = defineEmits<{
   (e: 'async-load-nodes', node: TreeNode): void;
   (e: 'node-click', node: TreeNode, selected: boolean): void;
   (e: 'drop-tree-node-checked', node: TreeNode, checked: boolean): void;
-  (e: 'node-expanded', node: TreeNode, expanded: boolean, position: any): void;
+  (e: 'node-expanded', node: TreeNode, expanded: boolean, position: Position): void;
+  (e: 'drag-node-end', dragNode: TreeNode, targetNode: TreeNode, parentNode: TreeNode | null, event: DragEvent): void;
+  (e: 'node-drop', draggedNode: TreeNode, targetNode: TreeNode, targetIndex: number, targetParent: TreeNode | null): void;
 }>();
 
 // Datos reactivos
 const searchword = ref<string>('');
 const open = ref<boolean>(false);
 const selectedItems = ref<string[]>(props.modelValue ?? []);
+const treeData = ref<TreeNode[]>(props.data);
 
 // Referencias
 const txtbox = ref<HTMLElement | null>(null);
@@ -104,6 +109,15 @@ const vTreeObj = computed(() => ({
   dragAfterExpanded: props.dragAfterExpanded ?? defaultProps.dragAfterExpanded,
 }));
 
+// Watch: Actualizar treeData cuando cambie props.data
+watch(
+  () => props.data,
+  (newData) => {
+    treeData.value = newData;
+  },
+  { deep: true }
+);
+
 // Watch: Actualizar el v-model cuando cambian los ítems seleccionados
 watch(selectedItems, (newValue) => {
   emit('update:modelValue', newValue);
@@ -112,15 +126,32 @@ watch(selectedItems, (newValue) => {
 // Mounted
 onMounted(() => {
   selectedItems.value = props.modelValue ?? [];
-  initTreeStatus(props.data);
+  initTreeStatus(treeData.value);
 });
 
 // Métodos
-const asyncLoadNodes = (node: TreeNode, expanded: boolean, position: any) => {
+const handleAsyncLoadNodes = (node: TreeNode) => {
   if (node.async && !node.children) {
     emit('async-load-nodes', node);
   }
+};
+
+const handleNodeExpanded = (node: TreeNode, expanded: boolean, position: Position) => {
   emit('node-expanded', node, expanded, position);
+};
+
+const handleDragNodeEnd = (dragNode: TreeNode, targetNode: TreeNode, parentNode: TreeNode | null, event: DragEvent) => {
+  emit('drag-node-end', dragNode, targetNode, parentNode, event);
+};
+
+const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode, targetIndex: number, targetParent: TreeNode | null) => {
+  console.log('SelectTree.vue handleNodeDrop:', { draggedNode: draggedNode.title, targetNode: targetNode.title, targetIndex, targetParent: targetParent?.title });
+  if (dropTree.value) {
+    dropTree.value.moveNode(draggedNode, targetNode, targetIndex, targetParent);
+  } else {
+    console.log('SelectTree.vue handleNodeDrop: dropTree ref is null');
+  }
+  emit('node-drop', draggedNode, targetNode, targetIndex, targetParent);
 };
 
 const nodeClick = (node: TreeNode, selected: boolean) => {
@@ -152,14 +183,14 @@ const rmNode = (text: string, eventFromNode = false) => {
   getNewSelectedNodes();
 };
 
-const nodeCheckStatusChange = () => {
+const nodeCheckStatusChange = (node: TreeNode, checked: boolean) => {
   const treeNodes = dropTree.value?.getCheckedNodes(true, false) ?? [];
   if (!treeNodes.length) {
     selectedItems.value = [];
   } else {
     selectedItems.value = treeNodes.map((node) => node.title ?? '');
   }
-  emit('drop-tree-node-checked', treeNodes[0], treeNodes.length > 0);
+  emit('drop-tree-node-checked', node, checked);
 };
 
 const searchNodes = () => {

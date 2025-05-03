@@ -10,6 +10,11 @@ export default defineConfig({
     hmr: {
       overlay: true,
       host: 'localhost',
+      // Forzar HMR para detectar cambios más rápido
+      clientPort: 24678,
+    },
+    watch: {
+      usePolling: true, // Detecta cambios en sistemas con problemas de notificación
     },
   },
   plugins: [
@@ -22,6 +27,9 @@ export default defineConfig({
     },
   },
   build: {
+    sourcemap: false, // Desactiva source maps en producción
+    emptyOutDir: true, // Limpia el directorio 'dist' antes de cada build
+    outDir: 'dist',
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'Vue3TreeMaster',
@@ -33,13 +41,12 @@ export default defineConfig({
         globals: {
           vue: 'Vue',
         },
+        // Agrega hash para evitar problemas de caché en producción
+        entryFileNames: 'vue3-tree-master-[hash].js',
       },
     },
-    outDir: 'dist',
-    emptyOutDir: true,
-    sourcemap: false,
   },
   css: {
-    devSourcemap: false,
+    devSourcemap: false, // Desactiva source maps para CSS en desarrollo
   },
 });

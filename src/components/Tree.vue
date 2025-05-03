@@ -11,7 +11,7 @@
       :tpl="tpl"
       :max-level="maxLevel"
       :level="0"
-      :top-must-expand="topMustExpand"
+      :topMustExpand="topMustExpand"
       :allow-get-parent-node="allowGetParentNode"
     />
   </div>
@@ -20,8 +20,9 @@
 <script setup lang="ts">
 import { ref, provide, watch } from 'vue';
 import TreeUl from './TreeUl.vue';
+import { useTreeMixins } from './composables/useTreeMixins';
 import { VNode } from 'vue';
-import type { TreeNode, TreeContext, Position, TreeExposedMethods } from './types';
+import type { TreeNode, TreeContext, Position, TreeExposedMethods, EmitEventArgs } from './types';
 
 const props = defineProps<{
   data: TreeNode[];
@@ -39,14 +40,32 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'node-check', node: TreeNode, checked: boolean, position: Position): void;
-  (e: 'drop-tree-node-checked', node: TreeNode, checked: boolean, position: Position): void;
   (e: 'node-expand', node: TreeNode, expanded: boolean, position: Position): void;
+  (e: 'async-load-nodes', node: TreeNode): void;
   (e: 'node-mouse-over', node: TreeNode, index: number, parent: TreeNode | null): void;
-  (e: 'async-load-nodes', node: TreeNode, expanded: boolean, position: Position): void;
+  (e: 'node-drop', draggedNode: TreeNode, targetNode: TreeNode, targetIndex: number, targetParent: TreeNode | null): void;
 }>();
+
+const defaultProps = {
+  multiple: false,
+  draggable: false,
+  dragAfterExpanded: true,
+  halfcheck: false,
+  scoped: false,
+  canDeleteRoot: false,
+  maxLevel: 10,
+  topMustExpand: false,
+  allowGetParentNode: false,
+};
 
 // Definimos treeData como un ref para que getCheckedNodes y getSelectedNodes funcionen
 const treeData = ref<TreeNode[]>(props.data);
+
+// Obtenemos el mixin completo
+const treeMixins = useTreeMixins();
+console.log('treeMixins:', treeMixins); // Depuración: Verificar el objeto completo
+const { getDragNode, cleanDragNode } = treeMixins;
+console.log('cleanDragNode after destructure:', cleanDragNode); // Depuración: Verificar después de desestructurar
 
 watch(
   () => props.data,
@@ -55,6 +74,28 @@ watch(
   },
   { immediate: true }
 );
+
+function init() {
+  const w = watch(
+    () => treeData.value,
+    (val) => {
+      initNode(val, null, 0, '');
+      w();
+    },
+    { deep: true, immediate: true }
+  );
+}
+
+function initNode(nodes: TreeNode[], parent: TreeNode | null, level: number, path: string) {
+  nodes.forEach((node, index) => {
+    node.parent = parent;
+    node.level = level;
+    node.path = path ? `${path}-${index}` : `${index}`;
+    if (node.children) {
+      initNode(node.children, node, level + 1, node.path);
+    }
+  });
+}
 
 const setAttr = (node: TreeNode, attr: keyof TreeNode, val: any) => {
   node[attr] = val;
@@ -106,28 +147,47 @@ const parentChecked = (node: TreeNode | null | undefined, checked: boolean, half
   return parentChecked(node.parent, checked, halfcheck);
 };
 
-const emitEventToTree = (event: string, ...args: any[]) => {
-  const position: Position = { level: 0, index: 0 };
-  let lastArg = args[args.length - 1];
+function emitEventToTree(...args: EmitEventArgs) {
+  const event = args[0];
 
-  // Solo verificamos las propiedades level e index si el evento no es node-mouse-over
-  if (event !== 'node-mouse-over' && lastArg && typeof lastArg === 'object' && 'level' in lastArg) {
-    position.level = lastArg.level;
-    position.index = lastArg.index;
-    args.pop();
+  switch (event) {
+    case 'node-check': {
+      const [, node, checked, position] = args as ['node-check', TreeNode, boolean, Position];
+      emit('node-check', node, checked, position);
+      break;
+    }
+    case 'node-expand': {
+      const [, node, expanded, position] = args as ['node-expand', TreeNode, boolean, Position];
+      emit('node-expand', node, expanded, position);
+      break;
+    }
+    case 'async-load-nodes': {
+      const [, node] = args as ['async-load-nodes', TreeNode];
+      emit('async-load-nodes', node);
+      break;
+    }
+    case 'node-mouse-over': {
+      const [, node, index, parent] = args as ['node-mouse-over', TreeNode, number, TreeNode | null];
+      emit('node-mouse-over', node, index, parent);
+      break;
+    }
+    case 'node-drop': {
+      const [, ev, targetNode, targetIndex, targetParent] = args as ['node-drop', DragEvent, TreeNode, number, TreeNode | null];
+      const guid = ev.dataTransfer?.getData('guid');
+      if (!guid) return;
+      const dragInfo = getDragNode(guid);
+      if (dragInfo) {
+        const draggedNode = dragInfo.node;
+        emit('node-drop', draggedNode, targetNode, targetIndex, targetParent);
+      }
+      console.log('Before cleanDragNode:', cleanDragNode); // Depuración: Verificar cleanDragNode antes de llamarlo
+      cleanDragNode(guid);
+      break;
+    }
+    default:
+      console.warn(`Evento no manejado: ${event}`);
   }
-
-  if (event === 'node-check') {
-    emit('node-check', args[0], args[1], position);
-    emit('drop-tree-node-checked', args[0], args[1], position);
-  } else if (event === 'node-expand') {
-    emit('node-expand', args[0], args[1], position);
-  } else if (event === 'async-load-nodes') {
-    emit('async-load-nodes', args[0], args[1], position);
-  } else if (event === 'node-mouse-over') {
-    emit('node-mouse-over', args[0], args[1], args[2]); // parent ya es TreeNode | null
-  }
-};
+}
 
 const nodeSelected = (node: TreeNode, position: Position) => {
   if (node.selDisabled) return;
@@ -263,6 +323,44 @@ const getNodes = (condition?: (node: TreeNode) => boolean): TreeNode[] => {
   return result;
 };
 
+function moveNode(draggedNode: TreeNode, targetNode: TreeNode, targetIndex: number, targetParent: TreeNode | null) {
+  console.log('Moving node:', draggedNode.title, 'to target:', targetNode.title, 'at index:', targetIndex, 'with parent:', targetParent?.title);
+  const removeFromParent = (nodes: TreeNode[], nodeToRemove: TreeNode): boolean => {
+    const index = nodes.findIndex((n) => n === nodeToRemove);
+    if (index !== -1) {
+      nodes.splice(index, 1);
+      console.log('Removed node from original position:', nodeToRemove.title);
+      return true;
+    }
+    for (const node of nodes) {
+      if (node.children) {
+        if (removeFromParent(node.children, nodeToRemove)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  removeFromParent(treeData.value, draggedNode);
+
+  if (targetParent) {
+    if (!targetParent.children) {
+      targetParent.children = [];
+    }
+    targetParent.children.splice(targetIndex, 0, draggedNode);
+    draggedNode.parent = targetParent;
+    console.log('Inserted node into new parent:', targetParent.title, 'at index:', targetIndex);
+  } else {
+    treeData.value.splice(targetIndex, 0, draggedNode);
+    draggedNode.parent = null;
+    console.log('Inserted node as root at index:', targetIndex);
+  }
+
+  initNode(treeData.value, null, 0, '');
+  console.log('Tree after move:', treeData.value);
+}
+
 const treeContext: TreeContext = {
   isLeaf,
   childChecked,
@@ -286,6 +384,7 @@ const methods: TreeExposedMethods = {
   getSelectedNodes,
   setNodeAttr,
   getNodes,
+  moveNode,
 };
 
 defineExpose(methods);

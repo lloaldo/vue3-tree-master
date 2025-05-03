@@ -26,7 +26,7 @@ export interface TreeContext {
   isLeaf: (node: TreeNode) => boolean; // Determina si un nodo es hoja
   childChecked: (node: TreeNode, checked: boolean, halfcheck: boolean) => void; // Propaga el estado checked a los hijos
   parentChecked: (node: TreeNode | null | undefined, checked: boolean, halfcheck: boolean) => boolean; // Propaga el estado checked al padre
-  emitEventToTree: (event: string, ...args: any[]) => void; // Emite eventos al árbol
+  emitEventToTree: (...args: EmitEventArgs) => void; // Emite eventos al árbol
   nodeSelected: (node: TreeNode, position: Position) => void; // Maneja la selección de un nodo
   setAttr: (node: TreeNode, attr: keyof TreeNode, val: any) => void; // Establece un atributo en un nodo
 }
@@ -36,6 +36,15 @@ export interface Position {
   level: number; // Nivel del nodo
   index: number; // Índice del nodo en su nivel
 }
+
+// Tipos de argumentos para los eventos emitidos
+export type EmitEventArgs =
+  | ['node-check', TreeNode, boolean, Position]
+  | ['node-expand', TreeNode, boolean, Position]
+  | ['async-load-nodes', TreeNode]
+  | ['node-mouse-over', TreeNode, number, TreeNode | null]
+  | ['node-drop', DragEvent, TreeNode, number, TreeNode | null]
+  | ['drag-node-end', { dragNode: TreeNode; targetNode: TreeNode; parentNode: TreeNode | null; event: DragEvent }];
 
 export interface TreeExposedMethods {
   childCheckedHandle: (node: TreeNode, checked: boolean) => void;
@@ -49,4 +58,5 @@ export interface TreeExposedMethods {
   getSelectedNodes: (leafOnly: boolean, includeHalfChecked: boolean) => TreeNode[];
   setNodeAttr: (node: TreeNode, attr: keyof TreeNode, val: any) => void;
   getNodes: (condition?: (node: TreeNode) => boolean) => TreeNode[];
+  moveNode: (draggedNode: TreeNode, targetNode: TreeNode, targetIndex: number, targetParent: TreeNode | null) => void;
 }

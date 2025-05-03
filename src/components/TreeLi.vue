@@ -1,6 +1,12 @@
 <template>
   <li v-if="itemVisible" :class="liClass">
-    <div class="tree-node-el" :draggable="draggable" @dragstart="drag(item, $event)">
+    <div 
+      class="tree-node-el"
+      :draggable="draggable"
+      @dragstart="drag(item, $event)"
+      @dragover="dragover"
+      @drop="drop(item, $event)"
+    >
       <span
         v-if="showExpand"
         class="tree-expand"
@@ -198,6 +204,19 @@ function drag(node: TreeNode, ev: DragEvent) {
   ev.dataTransfer?.setData('guid', guidValue);
 }
 
+function dragover(ev: DragEvent) {
+  ev.preventDefault();
+}
+
+function drop(node: TreeNode, ev: DragEvent) {
+  try {
+    ev.preventDefault();
+    emitEventToTree('node-drop', ev, node, props.index ?? defaultProps.index, props.parent ?? null);
+  } catch (error) {
+    console.error('Error during drop event:', error);
+  }
+}
+
 function expandNode(node: TreeNode) {
   const expended = !node.expanded;
   setAttr(node, 'expanded', expended);
@@ -244,3 +263,21 @@ function checkedChange() {
   }
 }
 </script>
+
+<style scoped>
+/* Estilo para el componente Loading */
+.loading-wrapper {
+  display: inline-block;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+/* Estilo para resaltar el nodo objetivo durante el drag */
+.tree-node-el {
+  padding: 2px 5px;
+}
+
+.tree-node-el:hover {
+  background-color: #f0f0f0;
+}
+</style>
