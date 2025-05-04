@@ -5,7 +5,6 @@
       :draggable="draggable"
       @dragstart="drag(item, $event)"
       @dragover="dragover"
-      @drop="drop(item, $event)"
     >
       <span
         v-if="showExpand"
@@ -200,21 +199,14 @@ watch(
 // Métodos
 function drag(node: TreeNode, ev: DragEvent) {
   const guidValue = guid();
+  console.log('TreeLi drag: GUID set:', guidValue, 'for node:', node.title);
   setDragNode(guidValue, node, props.parent ?? null);
   ev.dataTransfer?.setData('guid', guidValue);
+  emitEventToTree('drag-start', node);
 }
 
 function dragover(ev: DragEvent) {
   ev.preventDefault();
-}
-
-function drop(node: TreeNode, ev: DragEvent) {
-  try {
-    ev.preventDefault();
-    emitEventToTree('node-drop', ev, node, props.index ?? defaultProps.index, props.parent ?? null);
-  } catch (error) {
-    console.error('Error during drop event:', error);
-  }
 }
 
 function expandNode(node: TreeNode) {

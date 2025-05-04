@@ -22,14 +22,6 @@ export interface TreeNode {
 }
 
 // Interfaz para el contexto del árbol, que contiene funciones compartidas
-export interface TreeContext {
-  isLeaf: (node: TreeNode) => boolean; // Determina si un nodo es hoja
-  childChecked: (node: TreeNode, checked: boolean, halfcheck: boolean) => void; // Propaga el estado checked a los hijos
-  parentChecked: (node: TreeNode | null | undefined, checked: boolean, halfcheck: boolean) => boolean; // Propaga el estado checked al padre
-  emitEventToTree: (...args: EmitEventArgs) => void; // Emite eventos al árbol
-  nodeSelected: (node: TreeNode, position: Position) => void; // Maneja la selección de un nodo
-  setAttr: (node: TreeNode, attr: keyof TreeNode, val: any) => void; // Establece un atributo en un nodo
-}
 
 // Interfaz para la posición de un nodo en el árbol
 export interface Position {
@@ -44,7 +36,16 @@ export type EmitEventArgs =
   | ['async-load-nodes', TreeNode]
   | ['node-mouse-over', TreeNode, number, TreeNode | null]
   | ['node-drop', DragEvent, TreeNode, number, TreeNode | null]
-  | ['drag-node-end', { dragNode: TreeNode; targetNode: TreeNode; parentNode: TreeNode | null; event: DragEvent }];
+  | ['drag-start', TreeNode];
+  
+export interface TreeContext {
+  isLeaf: (node: TreeNode) => boolean; // Determina si un nodo es hoja
+  childChecked: (node: TreeNode, checked: boolean, halfcheck: boolean) => void; // Propaga el estado checked a los hijos
+  parentChecked: (node: TreeNode | null | undefined, checked: boolean, halfcheck: boolean) => boolean; // Propaga el estado checked al padre
+  emitEventToTree: (...args: EmitEventArgs) => void; // Emite eventos al árbol
+  nodeSelected: (node: TreeNode, position: Position) => void; // Maneja la selección de un nodo
+  setAttr: (node: TreeNode, attr: keyof TreeNode, val: any) => void; // Establece un atributo en un nodo
+}
 
 export interface TreeExposedMethods {
   childCheckedHandle: (node: TreeNode, checked: boolean) => void;
@@ -58,5 +59,4 @@ export interface TreeExposedMethods {
   getSelectedNodes: (leafOnly: boolean, includeHalfChecked: boolean) => TreeNode[];
   setNodeAttr: (node: TreeNode, attr: keyof TreeNode, val: any) => void;
   getNodes: (condition?: (node: TreeNode) => boolean) => TreeNode[];
-  moveNode: (draggedNode: TreeNode, targetNode: TreeNode, targetIndex: number, targetParent: TreeNode | null) => void;
 }

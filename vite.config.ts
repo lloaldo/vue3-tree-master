@@ -11,7 +11,7 @@ export default defineConfig({
       overlay: true,
       host: 'localhost',
       // Forzar HMR para detectar cambios más rápido
-      clientPort: 24678,
+      // clientPort: 24678,
     },
     watch: {
       usePolling: true, // Detecta cambios en sistemas con problemas de notificación

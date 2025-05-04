@@ -3,8 +3,6 @@
     <TreeLi
       v-for="(item, index) in data"
       :key="item.id ?? index"
-      @drop.stop="drop(item, $event)"
-      @dragover.stop="dragover"
       :item="item"
       :index="index"
       :data-length="data.length"
@@ -20,12 +18,14 @@
       :level="(props.level ?? defaultProps.level) + 1"
       :top-must-expand="topMustExpand"
       :allow-get-parent-node="allowGetParentNode"
+      @dragover.stop="dragover"
+      @drop.stop="drop($event, item, index)"
     />
   </ul>
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted } from 'vue';
+import { inject, ref } from 'vue';
 import TreeLi from './TreeLi.vue';
 import { useTreeMixins } from './composables/useTreeMixins';
 import type { TreeNode, TreeContext } from './types';
@@ -61,38 +61,100 @@ const treeContext = inject<TreeContext>('treeContext', {
   nodeSelected: () => {},
   setAttr: () => {},
 });
-const { emitEventToTree } = treeContext;
+const { emitEventToTree, setAttr } = treeContext;
 
 // Mixins como composable
-const { getDragNode } = useTreeMixins();
+const { getDragNode, cleanDragNode } = useTreeMixins();
+
+// Estado para manejar la posición del drag-and-drop
+const dropPosition = ref<'before' | 'after' | 'inside' | null>(null);
 
 // Métodos
 function dragover(ev: DragEvent) {
   ev.preventDefault();
   ev.stopPropagation();
+  const target = ev.target as HTMLElement;
+  const rect = target.getBoundingClientRect();
+  const y = ev.clientY - rect.top;
+  const height = rect.height;
+  if (y < height / 3) {
+    dropPosition.value = 'before';
+  } else if (y > (2 * height) / 3) {
+    dropPosition.value = 'after';
+  } else {
+    dropPosition.value = 'inside';
+  }
 }
 
-function drop(targetNode: TreeNode, ev: DragEvent) {
-  const guid = ev.dataTransfer?.getData('guid');
-  if (!guid) return; // Salir si guid es null o undefined
-  const { node, parent } = getDragNode(guid) || {};
+function drop(ev: DragEvent, targetNode: TreeNode | null, targetIndex: number) {
+  if (!(ev instanceof DragEvent)) {
+    console.error('TreeUl drop: Invalid event object', ev);
+    return;
+  }
+
   ev.preventDefault();
   ev.stopPropagation();
-  if (!node || !parent) return;
-  const dragAfterExpanded = props.dragAfterExpanded ?? true;
-  if (dragAfterExpanded) {
-    targetNode.expanded = true;
+
+  const guid = ev.dataTransfer?.getData('guid');
+  if (!guid) {
+    console.log('TreeUl drop: No GUID found in dataTransfer');
+    return;
   }
-  emitEventToTree('drag-node-end', { dragNode: node, targetNode, parentNode: parent, event: ev });
+
+  const dragInfo = getDragNode(guid);
+  if (!dragInfo) {
+    console.log('TreeUl drop: dragInfo not found for GUID:', guid);
+    return;
+  }
+
+  let adjustedIndex = targetIndex;
+  let adjustedParent = props.parent ?? null;
+
+  if (targetNode) {
+    if (dropPosition.value === 'inside') {
+      adjustedParent = targetNode;
+      adjustedIndex = targetNode.children ? targetNode.children.length : 0;
+      const dragAfterExpanded = props.dragAfterExpanded ?? true;
+      if (dragAfterExpanded && !targetNode.expanded) {
+        setAttr(targetNode, 'expanded', true);
+      }
+      console.log('TreeUl drop: Dropped inside node:', targetNode.title, 'at index:', adjustedIndex);
+    } else if (dropPosition.value === 'before') {
+      console.log('TreeUl drop: Dropped before node:', targetNode.title, 'at index:', adjustedIndex);
+    } else if (dropPosition.value === 'after') {
+      adjustedIndex += 1;
+      console.log('TreeUl drop: Dropped after node:', targetNode.title, 'at index:', adjustedIndex);
+    }
+  } else {
+    console.log('TreeUl drop: Dropped at the end of list, index:', adjustedIndex, 'parent:', props.parent?.title || 'none');
+  }
+
+  // Ajustar targetNode para evitar el error de TypeScript
+  const safeTargetNode: TreeNode = targetNode || ({} as TreeNode); // Solución temporal
+  emitEventToTree('node-drop', ev, safeTargetNode, adjustedIndex, adjustedParent);
+
+  cleanDragNode(guid);
+
+  dropPosition.value = null;
 }
 </script>
 
 <style scoped>
 .tree-ul {
   padding-left: 20px;
+  margin: 0;
+  list-style: none;
 }
 
 .tree-root {
   padding-left: 0;
+}
+
+.drop-target {
+  position: relative;
+}
+
+.drop-target:hover {
+  background-color: #f0f0f0;
 }
 </style>

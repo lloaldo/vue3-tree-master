@@ -26,6 +26,7 @@ import type { TreeNode, TreeContext, Position, TreeExposedMethods, EmitEventArgs
 
 const props = defineProps<{
   data: TreeNode[];
+  treeData: TreeNode[];
   multiple?: boolean;
   draggable?: boolean;
   dragAfterExpanded?: boolean;
@@ -43,29 +44,16 @@ const emit = defineEmits<{
   (e: 'node-expand', node: TreeNode, expanded: boolean, position: Position): void;
   (e: 'async-load-nodes', node: TreeNode): void;
   (e: 'node-mouse-over', node: TreeNode, index: number, parent: TreeNode | null): void;
-  (e: 'node-drop', draggedNode: TreeNode, targetNode: TreeNode, targetIndex: number, targetParent: TreeNode | null): void;
+  (e: 'node-drop', draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null): void;
+  (e: 'drag-start', node: TreeNode): void;
 }>();
 
-const defaultProps = {
-  multiple: false,
-  draggable: false,
-  dragAfterExpanded: true,
-  halfcheck: false,
-  scoped: false,
-  canDeleteRoot: false,
-  maxLevel: 10,
-  topMustExpand: false,
-  allowGetParentNode: false,
-};
+const treeMixins = useTreeMixins();
+const { getDragNode, cleanDragNode } = treeMixins;
 
 // Definimos treeData como un ref para que getCheckedNodes y getSelectedNodes funcionen
 const treeData = ref<TreeNode[]>(props.data);
 
-// Obtenemos el mixin completo
-const treeMixins = useTreeMixins();
-console.log('treeMixins:', treeMixins); // Depuración: Verificar el objeto completo
-const { getDragNode, cleanDragNode } = treeMixins;
-console.log('cleanDragNode after destructure:', cleanDragNode); // Depuración: Verificar después de desestructurar
 
 watch(
   () => props.data,
@@ -97,9 +85,9 @@ function initNode(nodes: TreeNode[], parent: TreeNode | null, level: number, pat
   });
 }
 
-const setAttr = (node: TreeNode, attr: keyof TreeNode, val: any) => {
+function setAttr(node: TreeNode, attr: keyof TreeNode, val: any) {
   node[attr] = val;
-};
+}
 
 const isLeaf = (node: TreeNode) => {
   return !(node.children && node.children.length);
@@ -173,15 +161,26 @@ function emitEventToTree(...args: EmitEventArgs) {
     }
     case 'node-drop': {
       const [, ev, targetNode, targetIndex, targetParent] = args as ['node-drop', DragEvent, TreeNode, number, TreeNode | null];
+      console.log('Tree.vue emitEventToTree node-drop:', { targetNode: targetNode?.title || 'none', targetIndex, targetParent: targetParent?.title || 'none' });
       const guid = ev.dataTransfer?.getData('guid');
-      if (!guid) return;
+      if (!guid) {
+        console.log('Tree.vue node-drop: No GUID found in dataTransfer');
+        return;
+      }
       const dragInfo = getDragNode(guid);
       if (dragInfo) {
         const draggedNode = dragInfo.node;
+        console.log('Tree.vue emitting node-drop:', { draggedNode: draggedNode.title, targetNode: targetNode?.title || 'none', targetIndex, targetParent: targetParent?.title || 'none' });
         emit('node-drop', draggedNode, targetNode, targetIndex, targetParent);
+      } else {
+        console.log('Tree.vue node-drop: dragInfo not found for GUID:', guid);
       }
-      console.log('Before cleanDragNode:', cleanDragNode); // Depuración: Verificar cleanDragNode antes de llamarlo
-      cleanDragNode(guid);
+      break;
+    }
+    case 'drag-start': {
+      const [, node] = args as ['drag-start', TreeNode];
+      console.log('Tree.vue emitting drag-start:', node.title);
+      emit('drag-start', node);
       break;
     }
     default:
@@ -323,8 +322,8 @@ const getNodes = (condition?: (node: TreeNode) => boolean): TreeNode[] => {
   return result;
 };
 
-function moveNode(draggedNode: TreeNode, targetNode: TreeNode, targetIndex: number, targetParent: TreeNode | null) {
-  console.log('Moving node:', draggedNode.title, 'to target:', targetNode.title, 'at index:', targetIndex, 'with parent:', targetParent?.title);
+function moveNode(draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null) {
+  console.log('Moving node:', draggedNode.title, 'to target:', targetNode?.title || 'none', 'at index:', targetIndex, 'with parent:', targetParent?.title);
   const removeFromParent = (nodes: TreeNode[], nodeToRemove: TreeNode): boolean => {
     const index = nodes.findIndex((n) => n === nodeToRemove);
     if (index !== -1) {
@@ -351,13 +350,21 @@ function moveNode(draggedNode: TreeNode, targetNode: TreeNode, targetIndex: numb
     targetParent.children.splice(targetIndex, 0, draggedNode);
     draggedNode.parent = targetParent;
     console.log('Inserted node into new parent:', targetParent.title, 'at index:', targetIndex);
-  } else {
+  } else if (targetNode === null) {
     treeData.value.splice(targetIndex, 0, draggedNode);
     draggedNode.parent = null;
     console.log('Inserted node as root at index:', targetIndex);
+  } else {
+    if (!targetNode.children) {
+      targetNode.children = [];
+    }
+    targetNode.children.splice(targetIndex, 0, draggedNode);
+    draggedNode.parent = targetNode;
+    console.log('Inserted node into target:', targetNode.title, 'at index:', targetIndex);
   }
 
-  initNode(treeData.value, null, 0, '');
+  // Forzar actualización reactiva
+  treeData.value = [...treeData.value];
   console.log('Tree after move:', treeData.value);
 }
 
@@ -384,7 +391,6 @@ const methods: TreeExposedMethods = {
   getSelectedNodes,
   setNodeAttr,
   getNodes,
-  moveNode,
 };
 
 defineExpose(methods);

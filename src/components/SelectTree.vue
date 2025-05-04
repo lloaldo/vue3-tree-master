@@ -29,6 +29,7 @@
           ref="dropTree"
           v-bind="vTreeObj"
           :data="treeData"
+          :tree-data="treeData"
           :drag-after-expanded="dragAfterExpanded"
           :draggable="draggable"
           :tpl="tpl"
@@ -40,6 +41,7 @@
           @node-check="nodeClick"
           @drag-node-end="handleDragNodeEnd"
           @node-drop="handleNodeDrop"
+          @drag-start="handleDragStart"
         />
       </div>
     </transition>
@@ -58,6 +60,7 @@ const props = defineProps<{
   pleasechoosetext?: string;
   searchtext?: string;
   data: TreeNode[];
+  treeData: TreeNode[]; // Nueva prop reactiva
   parent?: TreeNode | null;
   multiple?: boolean;
   draggable?: boolean;
@@ -84,14 +87,15 @@ const emit = defineEmits<{
   (e: 'drop-tree-node-checked', node: TreeNode, checked: boolean): void;
   (e: 'node-expanded', node: TreeNode, expanded: boolean, position: Position): void;
   (e: 'drag-node-end', dragNode: TreeNode, targetNode: TreeNode, parentNode: TreeNode | null, event: DragEvent): void;
-  (e: 'node-drop', draggedNode: TreeNode, targetNode: TreeNode, targetIndex: number, targetParent: TreeNode | null): void;
+  (e: 'node-drop', draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null): void;
+  (e: 'drag-start', node: TreeNode): void;
 }>();
 
 // Datos reactivos
 const searchword = ref<string>('');
 const open = ref<boolean>(false);
 const selectedItems = ref<string[]>(props.modelValue ?? []);
-const treeData = ref<TreeNode[]>(props.data);
+const treeData = ref<TreeNode[]>(props.treeData);
 
 // Referencias
 const txtbox = ref<HTMLElement | null>(null);
@@ -109,6 +113,10 @@ const vTreeObj = computed(() => ({
   dragAfterExpanded: props.dragAfterExpanded ?? defaultProps.dragAfterExpanded,
 }));
 
+watch(open, (newVal) => {
+  console.log('SelectTree.vue open:', newVal);
+});
+
 // Watch: Actualizar treeData cuando cambie props.data
 watch(
   () => props.data,
@@ -117,6 +125,7 @@ watch(
   },
   { deep: true }
 );
+
 
 // Watch: Actualizar el v-model cuando cambian los ítems seleccionados
 watch(selectedItems, (newValue) => {
@@ -141,18 +150,21 @@ const handleNodeExpanded = (node: TreeNode, expanded: boolean, position: Positio
 };
 
 const handleDragNodeEnd = (dragNode: TreeNode, targetNode: TreeNode, parentNode: TreeNode | null, event: DragEvent) => {
+  open.value = true;
   emit('drag-node-end', dragNode, targetNode, parentNode, event);
 };
 
-const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode, targetIndex: number, targetParent: TreeNode | null) => {
-  console.log('SelectTree.vue handleNodeDrop:', { draggedNode: draggedNode.title, targetNode: targetNode.title, targetIndex, targetParent: targetParent?.title });
-  if (dropTree.value) {
-    dropTree.value.moveNode(draggedNode, targetNode, targetIndex, targetParent);
-  } else {
-    console.log('SelectTree.vue handleNodeDrop: dropTree ref is null');
-  }
-  emit('node-drop', draggedNode, targetNode, targetIndex, targetParent);
+const handleDragStart = (node: TreeNode) => {
+  console.log('SelectTree.vue handleDragStart:', node.title);
+  open.value = true;
 };
+
+const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null) => {
+  console.log('SelectTree.vue handleNodeDrop:', { draggedNode: draggedNode.title, targetNode: targetNode?.title || 'none', targetIndex, targetParent: targetParent?.title || 'none' });
+  open.value = true;
+  emit('node-drop', draggedNode, targetNode, targetIndex, targetParent); // Propagar el evento a App.vue
+};
+
 
 const nodeClick = (node: TreeNode, selected: boolean) => {
   getNewSelectedNodes();
@@ -194,11 +206,10 @@ const nodeCheckStatusChange = (node: TreeNode, checked: boolean) => {
 };
 
 const searchNodes = () => {
-  const filter = searchword.value; // Usamos solo searchword.value como string
+  const filter = searchword.value;
   if (dropTree.value && filter) {
     dropTree.value.searchNodes(filter);
   }
-  // Si searchFilter está definido, podríamos usarlo en el futuro (ver notas)
 };
 
 const tagClick = (e: MouseEvent) => {

@@ -12,6 +12,7 @@
         ref="tree1"
         :can-delete-root="true"
         :data="treeData1"
+        :tree-data="treeData1"
         :draggable="true"
         :tpl="tpl"
         :halfcheck="true"
@@ -23,19 +24,26 @@
         ref="tree2"
         :can-delete-root="true"
         :data="treeData2"
+        :tree-data="treeData2"
         :multiple="false"
         @node-check="nodechecked"
         @async-load-nodes="asyncLoad2"
       />
     </div>
     <div class="tree3">
-      <SelectTree :data="treeData3" v-model="initSelected" :multiple="true" />
+      <SelectTree
+        :data="treeData3"
+        :tree-data="treeData3"
+        v-model="initSelected"
+        :multiple="true"
+        @node-drop="handleNodeDrop"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, h, onMounted, VNode } from 'vue';
+import { ref, h, onMounted, VNode } from 'vue';
 import Tree from './components/Tree.vue';
 import SelectTree from './components/SelectTree.vue';
 import type { TreeNode, TreeExposedMethods } from './components/types';
@@ -44,7 +52,7 @@ import type { TreeNode, TreeExposedMethods } from './components/types';
 const searchword = ref<string>('');
 const initSelected = ref<string[]>(['node 1-1']);
 
-const treeData1 = reactive<TreeNode[]>([
+const treeData1 = ref<TreeNode[]>([
   {
     title: 'node1',
     expanded: true,
@@ -69,7 +77,7 @@ const treeData1 = reactive<TreeNode[]>([
   },
 ]);
 
-const treeData2 = reactive<TreeNode[]>([
+const treeData2 = ref<TreeNode[]>([
   {
     title: 'node1',
     expanded: false,
@@ -77,7 +85,7 @@ const treeData2 = reactive<TreeNode[]>([
   },
 ]);
 
-const treeData3 = reactive<TreeNode[]>([
+const treeData3 = ref<TreeNode[]>([
   {
     title: 'node1',
     expanded: true,
@@ -113,9 +121,9 @@ const initializeTree = (nodes: TreeNode[]) => {
 };
 
 onMounted(() => {
-  initializeTree(treeData1);
-  initializeTree(treeData2);
-  initializeTree(treeData3);
+  initializeTree(treeData1.value);
+  initializeTree(treeData2.value);
+  initializeTree(treeData3.value);
 });
 
 // Métodos
@@ -199,6 +207,51 @@ const asyncLoad2 = async (node: TreeNode) => {
 
 const search = () => {
   tree1.value?.searchNodes(searchword.value);
+};
+
+const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null) => {
+  console.log('App.vue handleNodeDrop:', { draggedNode: draggedNode.title, targetNode: targetNode?.title || 'none', targetIndex, targetParent: targetParent?.title || 'none' });
+  // Actualizar treeData3 reactivamente
+  const removeFromParent = (nodes: TreeNode[], nodeToRemove: TreeNode): boolean => {
+    const index = nodes.findIndex((n) => n === nodeToRemove);
+    if (index !== -1) {
+      nodes.splice(index, 1);
+      console.log('App.vue removed node from original position:', nodeToRemove.title);
+      return true;
+    }
+    for (const node of nodes) {
+      if (node.children) {
+        if (removeFromParent(node.children, nodeToRemove)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  removeFromParent(treeData3.value, draggedNode);
+
+  if (targetParent) {
+    if (!targetParent.children) {
+      targetParent.children = [];
+    }
+    targetParent.children.splice(targetIndex, 0, draggedNode);
+    draggedNode.parent = targetParent;
+    console.log('App.vue inserted node into new parent:', targetParent.title, 'at index:', targetIndex);
+  } else if (targetNode === null) {
+    treeData3.value.splice(targetIndex, 0, draggedNode);
+    draggedNode.parent = null;
+    console.log('App.vue inserted node as root at index:', targetIndex);
+  } else {
+    if (!targetNode.children) {
+      targetNode.children = [];
+    }
+    targetNode.children.splice(targetIndex, 0, draggedNode);
+    draggedNode.parent = targetNode;
+    console.log('App.vue inserted node into target:', targetNode.title, 'at index:', targetIndex);
+  }
+
+  console.log('App.vue treeData3 after move:', treeData3);
 };
 </script>
 
