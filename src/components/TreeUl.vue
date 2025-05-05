@@ -2,7 +2,7 @@
   <ul class="tree-ul" :class="{ 'tree-root': !parent }">
     <TreeLi
       v-for="(item, index) in data"
-      :key="item.id ?? index"
+      :key="item.id"
       :item="item"
       :index="index"
       :data-length="data.length"

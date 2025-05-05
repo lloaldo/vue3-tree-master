@@ -26,7 +26,6 @@ import type { TreeNode, TreeContext, Position, TreeExposedMethods, EmitEventArgs
 
 const props = defineProps<{
   data: TreeNode[];
-  treeData: TreeNode[];
   multiple?: boolean;
   draggable?: boolean;
   dragAfterExpanded?: boolean;
@@ -58,9 +57,9 @@ const treeData = ref<TreeNode[]>(props.data);
 watch(
   () => props.data,
   (newVal) => {
-    treeData.value = newVal;
+    treeData.value = [...newVal]; // Copia superficial para garantizar reactividad
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 );
 
 function init() {
@@ -137,7 +136,6 @@ const parentChecked = (node: TreeNode | null | undefined, checked: boolean, half
 
 function emitEventToTree(...args: EmitEventArgs) {
   const event = args[0];
-
   switch (event) {
     case 'node-check': {
       const [, node, checked, position] = args as ['node-check', TreeNode, boolean, Position];
@@ -161,7 +159,6 @@ function emitEventToTree(...args: EmitEventArgs) {
     }
     case 'node-drop': {
       const [, ev, targetNode, targetIndex, targetParent] = args as ['node-drop', DragEvent, TreeNode, number, TreeNode | null];
-      console.log('Tree.vue emitEventToTree node-drop:', { targetNode: targetNode?.title || 'none', targetIndex, targetParent: targetParent?.title || 'none' });
       const guid = ev.dataTransfer?.getData('guid');
       if (!guid) {
         console.log('Tree.vue node-drop: No GUID found in dataTransfer');
@@ -170,8 +167,14 @@ function emitEventToTree(...args: EmitEventArgs) {
       const dragInfo = getDragNode(guid);
       if (dragInfo) {
         const draggedNode = dragInfo.node;
-        console.log('Tree.vue emitting node-drop:', { draggedNode: draggedNode.title, targetNode: targetNode?.title || 'none', targetIndex, targetParent: targetParent?.title || 'none' });
+        console.log('Tree.vue emitting node-drop:', {
+          draggedNode: draggedNode.title,
+          targetNode: targetNode?.title || 'none',
+          targetIndex,
+          targetParent: targetParent?.title || 'none',
+        });
         emit('node-drop', draggedNode, targetNode, targetIndex, targetParent);
+        console.log('Tree.vue node-drop event emitted');
       } else {
         console.log('Tree.vue node-drop: dragInfo not found for GUID:', guid);
       }

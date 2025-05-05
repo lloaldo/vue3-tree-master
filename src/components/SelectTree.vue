@@ -29,7 +29,6 @@
           ref="dropTree"
           v-bind="vTreeObj"
           :data="treeData"
-          :tree-data="treeData"
           :drag-after-expanded="dragAfterExpanded"
           :draggable="draggable"
           :tpl="tpl"
@@ -49,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, reactive } from 'vue';
 import Tree from './Tree.vue';
 import type { TreeNode, Position } from './types';
 
@@ -60,7 +59,6 @@ const props = defineProps<{
   pleasechoosetext?: string;
   searchtext?: string;
   data: TreeNode[];
-  treeData: TreeNode[]; // Nueva prop reactiva
   parent?: TreeNode | null;
   multiple?: boolean;
   draggable?: boolean;
@@ -95,7 +93,7 @@ const emit = defineEmits<{
 const searchword = ref<string>('');
 const open = ref<boolean>(false);
 const selectedItems = ref<string[]>(props.modelValue ?? []);
-const treeData = ref<TreeNode[]>(props.treeData);
+const treeData = reactive<TreeNode[]>([...props.data]);
 
 // Referencias
 const txtbox = ref<HTMLElement | null>(null);
@@ -113,17 +111,15 @@ const vTreeObj = computed(() => ({
   dragAfterExpanded: props.dragAfterExpanded ?? defaultProps.dragAfterExpanded,
 }));
 
-watch(open, (newVal) => {
-  console.log('SelectTree.vue open:', newVal);
-});
 
 // Watch: Actualizar treeData cuando cambie props.data
 watch(
   () => props.data,
   (newData) => {
-    treeData.value = newData;
+    // Reemplazar contenido reactivamente
+    treeData.splice(0, treeData.length, ...newData.map((node) => ({ ...node })));
   },
-  { deep: true }
+  { immediate: true, deep: true }
 );
 
 
@@ -135,7 +131,7 @@ watch(selectedItems, (newValue) => {
 // Mounted
 onMounted(() => {
   selectedItems.value = props.modelValue ?? [];
-  initTreeStatus(treeData.value);
+  initTreeStatus(treeData);
 });
 
 // Métodos
@@ -160,9 +156,15 @@ const handleDragStart = (node: TreeNode) => {
 };
 
 const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null) => {
-  console.log('SelectTree.vue handleNodeDrop:', { draggedNode: draggedNode.title, targetNode: targetNode?.title || 'none', targetIndex, targetParent: targetParent?.title || 'none' });
+  console.log('SelectTree.vue handleNodeDrop:', {
+    draggedNode: draggedNode.title,
+    targetNode: targetNode?.title || 'none',
+    targetIndex,
+    targetParent: targetParent?.title || 'none',
+  });
   open.value = true;
-  emit('node-drop', draggedNode, targetNode, targetIndex, targetParent); // Propagar el evento a App.vue
+  emit('node-drop', draggedNode, targetNode, targetIndex, targetParent);
+  console.log('SelectTree.vue node-drop event emitted');
 };
 
 

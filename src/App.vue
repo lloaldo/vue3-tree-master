@@ -12,11 +12,11 @@
         ref="tree1"
         :can-delete-root="true"
         :data="treeData1"
-        :tree-data="treeData1"
         :draggable="true"
         :tpl="tpl"
         :halfcheck="true"
         :multiple="true"
+        @node-drop="handleNodeDrop"
       />
     </div>
     <div class="tree3">
@@ -24,7 +24,7 @@
         ref="tree2"
         :can-delete-root="true"
         :data="treeData2"
-        :tree-data="treeData2"
+        :draggable="true"
         :multiple="false"
         @node-check="nodechecked"
         @async-load-nodes="asyncLoad2"
@@ -33,17 +33,15 @@
     <div class="tree3">
       <SelectTree
         :data="treeData3"
-        :tree-data="treeData3"
         v-model="initSelected"
         :multiple="true"
-        @node-drop="handleNodeDrop"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted, VNode } from 'vue';
+import { ref, h, onMounted, VNode, reactive } from 'vue';
 import Tree from './components/Tree.vue';
 import SelectTree from './components/SelectTree.vue';
 import type { TreeNode, TreeExposedMethods } from './components/types';
@@ -52,53 +50,60 @@ import type { TreeNode, TreeExposedMethods } from './components/types';
 const searchword = ref<string>('');
 const initSelected = ref<string[]>(['node 1-1']);
 
-const treeData1 = ref<TreeNode[]>([
+const treeData1 = reactive<TreeNode[]>([
   {
+    id: 'node1',
     title: 'node1',
     expanded: true,
     children: [
       {
+        id: 'node1-1',
         title: 'node 1-1',
         expanded: true,
         children: [
-          { title: 'node 1-1-1' },
-          { title: 'node 1-1-2' },
-          { title: 'node 1-1-3' },
+          { id: 'node1-1-1', title: 'node 1-1-1' },
+          { id: 'node1-1-2', title: 'node 1-1-2' },
+          { id: 'node1-1-3', title: 'node 1-1-3' },
         ],
       },
       {
+        id: 'node1-2',
         title: 'node 1-2',
         children: [
-          { title: "<span style='color: red'>node 1-2-1</span>" },
-          { title: "<span style='color: red'>node 1-2-2</span>" },
+          { id: 'node1-2-1', title: 'node 1-2-1' },
+          { id: 'node1-2-2', title: 'node 1-2-2' },
         ],
       },
     ],
   },
 ]);
 
-const treeData2 = ref<TreeNode[]>([
+const treeData2 = reactive<TreeNode[]>([
   {
+    id: 'node2',
     title: 'node1',
     expanded: false,
     async: true,
   },
 ]);
 
-const treeData3 = ref<TreeNode[]>([
+const treeData3 = reactive<TreeNode[]>([
   {
+    id: 'node1',
     title: 'node1',
     expanded: true,
     children: [
       {
+        id: 'node1-1',
         title: 'node 1-1',
         expanded: true,
         children: [
-          { title: 'node 1-1-1' },
-          { title: 'node 1-1-2' },
-          { title: 'node 1-1-3' },
+          { id: 'node1-1-1', title: 'node 1-1-1' },
+          { id: 'node1-1-2', title: 'node 1-1-2' },
+          { id: 'node1-1-3', title: 'node 1-1-3' },
         ],
       },
+      { id: 'node1-2', title: 'node 1-2' },
     ],
   },
 ]);
@@ -121,9 +126,9 @@ const initializeTree = (nodes: TreeNode[]) => {
 };
 
 onMounted(() => {
-  initializeTree(treeData1.value);
-  initializeTree(treeData2.value);
-  initializeTree(treeData3.value);
+  initializeTree(treeData1);
+  initializeTree(treeData2);
+  initializeTree(treeData3);
 });
 
 // Métodos
@@ -209,11 +214,21 @@ const search = () => {
   tree1.value?.searchNodes(searchword.value);
 };
 
-const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null) => {
-  console.log('App.vue handleNodeDrop:', { draggedNode: draggedNode.title, targetNode: targetNode?.title || 'none', targetIndex, targetParent: targetParent?.title || 'none' });
-  // Actualizar treeData3 reactivamente
+const handleNodeDrop = (
+  draggedNode: TreeNode,
+  targetNode: TreeNode | null,
+  targetIndex: number,
+  targetParent: TreeNode | null
+) => {
+  console.log('App.vue handleNodeDrop:', {
+    draggedNode: draggedNode.title,
+    targetNode: targetNode?.title || 'none',
+    targetIndex,
+    targetParent: targetParent?.title || 'none',
+  });
+
   const removeFromParent = (nodes: TreeNode[], nodeToRemove: TreeNode): boolean => {
-    const index = nodes.findIndex((n) => n === nodeToRemove);
+    const index = nodes.findIndex((n) => n.id === nodeToRemove.id);
     if (index !== -1) {
       nodes.splice(index, 1);
       console.log('App.vue removed node from original position:', nodeToRemove.title);
@@ -229,7 +244,11 @@ const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode | null, targ
     return false;
   };
 
-  removeFromParent(treeData3.value, draggedNode);
+  const removed = removeFromParent(treeData1, draggedNode);
+  if (!removed) {
+    console.warn('App.vue: Node not found in original position:', draggedNode.title);
+    return;
+  }
 
   if (targetParent) {
     if (!targetParent.children) {
@@ -239,7 +258,7 @@ const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode | null, targ
     draggedNode.parent = targetParent;
     console.log('App.vue inserted node into new parent:', targetParent.title, 'at index:', targetIndex);
   } else if (targetNode === null) {
-    treeData3.value.splice(targetIndex, 0, draggedNode);
+    treeData1.splice(targetIndex, 0, draggedNode);
     draggedNode.parent = null;
     console.log('App.vue inserted node as root at index:', targetIndex);
   } else {
@@ -251,8 +270,22 @@ const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode | null, targ
     console.log('App.vue inserted node into target:', targetNode.title, 'at index:', targetIndex);
   }
 
-  console.log('App.vue treeData3 after move:', treeData3);
+  console.log('App.vue treeData1 after move:', {
+    nodes: treeData1.map((node) => ({
+      id: node.id,
+      title: node.title,
+      children: node.children?.map((child) => ({
+        id: child.id,
+        title: child.title,
+        children: child.children?.map((grandchild) => ({
+          id: grandchild.id,
+          title: grandchild.title,
+        })),
+      })),
+    })),
+  });
 };
+
 </script>
 
 <style scoped>
