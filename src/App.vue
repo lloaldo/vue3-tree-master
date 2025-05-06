@@ -226,66 +226,8 @@ const handleNodeDrop = (
     targetIndex,
     targetParent: targetParent?.title || 'none',
   });
-
-  const removeFromParent = (nodes: TreeNode[], nodeToRemove: TreeNode): boolean => {
-    const index = nodes.findIndex((n) => n.id === nodeToRemove.id);
-    if (index !== -1) {
-      nodes.splice(index, 1);
-      console.log('App.vue removed node from original position:', nodeToRemove.title);
-      return true;
-    }
-    for (const node of nodes) {
-      if (node.children) {
-        if (removeFromParent(node.children, nodeToRemove)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  };
-
-  const removed = removeFromParent(treeData1, draggedNode);
-  if (!removed) {
-    console.warn('App.vue: Node not found in original position:', draggedNode.title);
-    return;
-  }
-
-  if (targetParent) {
-    if (!targetParent.children) {
-      targetParent.children = [];
-    }
-    targetParent.children.splice(targetIndex, 0, draggedNode);
-    draggedNode.parent = targetParent;
-    console.log('App.vue inserted node into new parent:', targetParent.title, 'at index:', targetIndex);
-  } else if (targetNode === null) {
-    treeData1.splice(targetIndex, 0, draggedNode);
-    draggedNode.parent = null;
-    console.log('App.vue inserted node as root at index:', targetIndex);
-  } else {
-    if (!targetNode.children) {
-      targetNode.children = [];
-    }
-    targetNode.children.splice(targetIndex, 0, draggedNode);
-    draggedNode.parent = targetNode;
-    console.log('App.vue inserted node into target:', targetNode.title, 'at index:', targetIndex);
-  }
-
-  console.log('App.vue treeData1 after move:', {
-    nodes: treeData1.map((node) => ({
-      id: node.id,
-      title: node.title,
-      children: node.children?.map((child) => ({
-        id: child.id,
-        title: child.title,
-        children: child.children?.map((grandchild) => ({
-          id: grandchild.id,
-          title: grandchild.title,
-        })),
-      })),
-    })),
-  });
+  // No se necesita mover el nodo aquí, ya que la librería lo maneja
 };
-
 </script>
 
 <style scoped>
