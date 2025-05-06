@@ -199,7 +199,6 @@ watch(
 // Métodos
 function drag(node: TreeNode, ev: DragEvent) {
   const guidValue = guid();
-  console.log('TreeLi drag: GUID set:', guidValue, 'for node:', node.title);
   setDragNode(guidValue, node, props.parent ?? null);
   ev.dataTransfer?.setData('guid', guidValue);
   emitEventToTree('drag-start', node);

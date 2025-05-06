@@ -151,20 +151,12 @@ const handleDragNodeEnd = (dragNode: TreeNode, targetNode: TreeNode, parentNode:
 };
 
 const handleDragStart = (node: TreeNode) => {
-  console.log('SelectTree.vue handleDragStart:', node.title);
   open.value = true;
 };
 
 const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null) => {
-  console.log('SelectTree.vue handleNodeDrop:', {
-    draggedNode: draggedNode.title,
-    targetNode: targetNode?.title || 'none',
-    targetIndex,
-    targetParent: targetParent?.title || 'none',
-  });
   open.value = true;
   emit('node-drop', draggedNode, targetNode, targetIndex, targetParent);
-  console.log('SelectTree.vue node-drop event emitted');
 };
 
 

@@ -21,6 +21,7 @@
 import { ref, provide, watch } from 'vue';
 import TreeUl from './TreeUl.vue';
 import { useTreeMixins } from './composables/useTreeMixins';
+import { useTreeLogic } from './composables/useTreeLogic';
 import { VNode } from 'vue';
 import type { TreeNode, TreeContext, Position, TreeExposedMethods, EmitEventArgs } from './types';
 
@@ -49,6 +50,7 @@ const emit = defineEmits<{
 
 const treeMixins = useTreeMixins();
 const { getDragNode, cleanDragNode } = treeMixins;
+const { expandedNodes, toggleNode } = useTreeLogic();
 
 // Definimos treeData como un ref para que getCheckedNodes y getSelectedNodes funcionen
 const treeData = ref<TreeNode[]>(props.data);
@@ -66,6 +68,12 @@ function init() {
     () => treeData.value,
     (val) => {
       initNode(val, null, 0, '');
+      // Inicializar estado de expansión basado en treeData
+      val.forEach((node) => {
+        if (node.expanded && node.id !== undefined) {
+          expandedNodes.value.add(node.id);
+        }
+      });
       w();
     },
     { deep: true, immediate: true }
@@ -85,6 +93,14 @@ function initNode(nodes: TreeNode[], parent: TreeNode | null, level: number, pat
 
 function setAttr(node: TreeNode, attr: keyof TreeNode, val: any) {
   node[attr] = val;
+  // Sincronizar estado de expansión con useTreeLogic
+  if (attr === 'expanded' && node.id !== undefined) {
+    if (val) {
+      expandedNodes.value.add(node.id);
+    } else {
+      expandedNodes.value.delete(node.id);
+    }
+  }
 }
 
 const isLeaf = (node: TreeNode) => {
@@ -160,31 +176,23 @@ function emitEventToTree(...args: EmitEventArgs) {
       const [, ev, targetNode, targetIndex, targetParent] = args as ['node-drop', DragEvent, TreeNode, number, TreeNode | null];
       const guid = ev.dataTransfer?.getData('guid');
       if (!guid) {
-        console.log('Tree.vue node-drop: No GUID found in dataTransfer');
+        // Tree.vue node-drop: No GUID found in dataTransfer
         return;
       }
       const dragInfo = getDragNode(guid);
       if (dragInfo) {
         const draggedNode = dragInfo.node;
-        console.log('Tree.vue emitting node-drop:', {
-          draggedNode: draggedNode.title,
-          targetNode: targetNode?.title || 'none',
-          targetIndex,
-          targetParent: targetParent?.title || 'none',
-        });
         // Mover el nodo dentro de la estructura del árbol
         moveNode(draggedNode, targetNode, targetIndex, targetParent);
         // Emitir el evento para notificar a los consumidores
         emit('node-drop', draggedNode, targetNode, targetIndex, targetParent);
-        console.log('Tree.vue node-drop event emitted');
       } else {
-        console.log('Tree.vue node-drop: dragInfo not found for GUID:', guid);
       }
+      cleanDragNode(guid);
       break;
     }
     case 'drag-start': {
       const [, node] = args as ['drag-start', TreeNode];
-      console.log('Tree.vue emitting drag-start:', node.title);
       emit('drag-start', node);
       break;
     }
@@ -328,14 +336,21 @@ const getNodes = (condition?: (node: TreeNode) => boolean): TreeNode[] => {
 };
 
 function moveNode(draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null) {
-  console.log('Moving node:', draggedNode.title, 'to target:', targetNode?.title || 'none', 'at index:', targetIndex, 'with parent:', targetParent?.title || 'none');
+
+  // Validar que el nodo arrastrado tenga un identificador válido
+  if (!draggedNode.id && !draggedNode.title) {
+    console.warn('Tree.vue: Dragged node lacks id and title, cannot move:', draggedNode);
+    return;
+  }
 
   // Función para eliminar el nodo de su posición original
   const removeFromParent = (nodes: TreeNode[], nodeToRemove: TreeNode): boolean => {
-    const index = nodes.findIndex((n) => n.id === nodeToRemove.id || n.title === nodeToRemove.title);
+    const index = nodes.findIndex((n) => 
+      (nodeToRemove.id && n.id === nodeToRemove.id) || 
+      (nodeToRemove.title && n.title === nodeToRemove.title)
+    );
     if (index !== -1) {
       nodes.splice(index, 1);
-      console.log('Removed node from original position:', nodeToRemove.title);
       return true;
     }
     for (const node of nodes) {
@@ -351,7 +366,7 @@ function moveNode(draggedNode: TreeNode, targetNode: TreeNode | null, targetInde
   // Eliminar el nodo arrastrado de su posición original
   const removed = removeFromParent(treeData.value, draggedNode);
   if (!removed) {
-    console.warn('Tree.vue: Node not found in original position:', draggedNode.title);
+    console.warn('Tree.vue: Node not found in original position:', draggedNode.title || draggedNode.id);
     return;
   }
 
@@ -362,23 +377,29 @@ function moveNode(draggedNode: TreeNode, targetNode: TreeNode | null, targetInde
     }
     targetParent.children.splice(targetIndex, 0, draggedNode);
     draggedNode.parent = targetParent;
-    console.log('Inserted node into new parent:', targetParent.title, 'at index:', targetIndex);
+    // Expandir el nodo padre si está en la posición "inside"
+    if (props.dragAfterExpanded && targetParent.id !== undefined) {
+      toggleNode(targetParent);
+      setAttr(targetParent, 'expanded', true);
+    }
   } else if (targetNode === null) {
     treeData.value.splice(targetIndex, 0, draggedNode);
     draggedNode.parent = null;
-    console.log('Inserted node as root at index:', targetIndex);
   } else {
     if (!targetNode.children) {
       targetNode.children = [];
     }
     targetNode.children.splice(targetIndex, 0, draggedNode);
     draggedNode.parent = targetNode;
-    console.log('Inserted node into target:', targetNode.title, 'at index:', targetIndex);
+    // Expandir el nodo objetivo si está en la posición "inside"
+    if (props.dragAfterExpanded && targetNode.id !== undefined) {
+      toggleNode(targetNode);
+      setAttr(targetNode, 'expanded', true);
+    }
   }
 
   // Forzar actualización reactiva
   treeData.value = [...treeData.value];
-  console.log('Tree after move:', treeData.value);
 }
 
 const treeContext: TreeContext = {

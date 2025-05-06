@@ -17,18 +17,15 @@ export const useTreeMixins = (() => {
     };
 
     const setDragNode = (guid: string, node: TreeNode, parent: TreeNode | null) => {
-      console.log('useTreeMixins setDragNode: Storing GUID:', guid, 'for node:', node.title);
       dragNodes.value.set(guid, { node, parent });
     };
 
     const getDragNode = (guid: string) => {
       const dragInfo = dragNodes.value.get(guid) || null;
-      console.log('useTreeMixins getDragNode: Retrieving GUID:', guid, 'found:', dragInfo ? dragInfo.node.title : 'not found');
       return dragInfo;
     };
 
     const cleanDragNode = (guid: string) => {
-      console.log('useTreeMixins cleanDragNode: Removing GUID:', guid);
       dragNodes.value.delete(guid);
     };
 

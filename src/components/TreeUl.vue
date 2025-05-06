@@ -88,7 +88,6 @@ function dragover(ev: DragEvent) {
 
 function drop(ev: DragEvent, targetNode: TreeNode | null, targetIndex: number) {
   if (!(ev instanceof DragEvent)) {
-    console.error('TreeUl drop: Invalid event object', ev);
     return;
   }
 
@@ -97,13 +96,11 @@ function drop(ev: DragEvent, targetNode: TreeNode | null, targetIndex: number) {
 
   const guid = ev.dataTransfer?.getData('guid');
   if (!guid) {
-    console.log('TreeUl drop: No GUID found in dataTransfer');
     return;
   }
 
   const dragInfo = getDragNode(guid);
   if (!dragInfo) {
-    console.log('TreeUl drop: dragInfo not found for GUID:', guid);
     return;
   }
 
@@ -118,15 +115,11 @@ function drop(ev: DragEvent, targetNode: TreeNode | null, targetIndex: number) {
       if (dragAfterExpanded && !targetNode.expanded) {
         setAttr(targetNode, 'expanded', true);
       }
-      console.log('TreeUl drop: Dropped inside node:', targetNode.title, 'at index:', adjustedIndex);
     } else if (dropPosition.value === 'before') {
-      console.log('TreeUl drop: Dropped before node:', targetNode.title, 'at index:', adjustedIndex);
     } else if (dropPosition.value === 'after') {
       adjustedIndex += 1;
-      console.log('TreeUl drop: Dropped after node:', targetNode.title, 'at index:', adjustedIndex);
     }
   } else {
-    console.log('TreeUl drop: Dropped at the end of list, index:', adjustedIndex, 'parent:', props.parent?.title || 'none');
   }
 
   // Ajustar targetNode para evitar el error de TypeScript

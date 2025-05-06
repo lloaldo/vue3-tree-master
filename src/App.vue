@@ -16,7 +16,6 @@
         :tpl="tpl"
         :halfcheck="true"
         :multiple="true"
-        @node-drop="handleNodeDrop"
       />
     </div>
     <div class="tree3">
@@ -35,6 +34,7 @@
         :data="treeData3"
         v-model="initSelected"
         :multiple="true"
+        :draggable="true"
       />
     </div>
   </div>
@@ -212,21 +212,6 @@ const asyncLoad2 = async (node: TreeNode) => {
 
 const search = () => {
   tree1.value?.searchNodes(searchword.value);
-};
-
-const handleNodeDrop = (
-  draggedNode: TreeNode,
-  targetNode: TreeNode | null,
-  targetIndex: number,
-  targetParent: TreeNode | null
-) => {
-  console.log('App.vue handleNodeDrop:', {
-    draggedNode: draggedNode.title,
-    targetNode: targetNode?.title || 'none',
-    targetIndex,
-    targetParent: targetParent?.title || 'none',
-  });
-  // No se necesita mover el nodo aquí, ya que la librería lo maneja
 };
 </script>
 
