@@ -16,6 +16,7 @@
         :tpl="tpl"
         :halfcheck="true"
         :multiple="true"
+        @node-click="handleNodeClick"
       />
     </div>
     <div class="tree3">
@@ -212,6 +213,11 @@ const asyncLoad2 = async (node: TreeNode) => {
 
 const search = () => {
   tree1.value?.searchNodes(searchword.value);
+};
+
+const handleNodeClick = (node: TreeNode, selected: boolean) => {
+  // lastClickedNode.value = node.title;
+  alert(`Node click: ${node.title} ${selected}`);
 };
 </script>
 

@@ -8,12 +8,12 @@ Vue3-Tree is a Vue 3 component library designed to create interactive tree struc
 - **Multiple Selection**: Supports checkboxes for multiple selection with intermediate states (halfcheck).
 - **Node Search**: Filter nodes based on a search term.
 - **Drag and Drop**: Reorder or restructure nodes using drag-and-drop.
+- **Node Click Handling**: Select nodes with a click and handle selection changes via events.
 - **Customization**: Render custom nodes via a template function (`tpl`).
 - **Maximum Level Support**: Limit the depth of the tree.
 - **TypeScript Support**: Fully typed with TypeScript for robust development.
 - **Vue 3 Compatibility**: Built with the Composition API.
-
-**Note**: Animated transitions for expanding/collapsing nodes are planned but not yet implemented in the current version.
+- **Animated Transitions**: Smooth expand/collapse animations for nodes (implemented via `CollapseTransition.vue`).
 
 ## Installation
 
@@ -62,11 +62,11 @@ Vue3-Tree is a Vue 3 component library designed to create interactive tree struc
    npm run dev
    ```
 
-   The application will be available at `http://localhost:5173` (or the configured port).
+   The application will be available at the configured port.
 
 ## Usage
 
-Vue3-Tree provides components to create interactive tree structures. The main component is `Tree.vue`, which supports various features for dynamic trees.
+Vue3-Tree provides components to create interactive tree structures. The main component is `Tree.vue`, which supports various features for dynamic trees. Below are examples demonstrating key functionalities.
 
 ### Basic Example
 
@@ -104,6 +104,48 @@ const treeData = reactive<TreeNode[]>([
 ```
 
 This renders a tree with `Node 1` (expanded, with two children) and `Node 2`.
+
+### Handling Node Clicks
+
+Handle node selection with the `node-click` event to perform actions when a node is clicked:
+
+```vue
+<!-- App.vue -->
+<template>
+  <div>
+    <Tree :data="treeData" @node-click="handleNodeClick" />
+    <p v-if="lastClickedNode">Last clicked node: {{ lastClickedNode }}</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { reactive, ref } from 'vue';
+import Tree from 'vue3-tree';
+import type { TreeNode } from 'vue3-tree';
+
+const treeData = reactive<TreeNode[]>([
+  {
+    id: '1',
+    title: 'Node 1',
+    children: [
+      { id: '1-1', title: 'Node 1-1' },
+      { id: '1-2', title: 'Node 1-2' },
+    ],
+  },
+  { id: '2', title: 'Node 2' },
+]);
+
+const lastClickedNode = ref<string | null>(null);
+
+const handleNodeClick = (node: TreeNode, selected: boolean) => {
+  lastClickedNode.value = node.title;
+  console.log(`Node clicked: ${node.title}, selected: ${selected}`);
+};
+</script>
+```
+
+- `@node-click`: Emitted when a node is clicked, providing the node and its selection state.
+- In single-selection mode (`multiple: false`), clicking a node deselects others. In multiple-selection mode (`multiple: true`), nodes toggle their selection state.
 
 ### Asynchronous Node Loading
 
@@ -177,7 +219,7 @@ const treeData = reactive<TreeNode[]>([
 ]);
 
 const onNodeCheck = (node: TreeNode, checked: boolean) => {
-  // Handle node selection
+  console.log(`Node ${node.title} checked: ${checked}`);
 };
 </script>
 ```
@@ -213,7 +255,7 @@ const treeData = reactive<TreeNode[]>([
 ]);
 
 const onNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null) => {
-  // Handle node drop
+  console.log(`Dropped ${draggedNode.title} at index ${targetIndex}`);
 };
 </script>
 ```
@@ -302,7 +344,7 @@ const customTemplate = (node: TreeNode, ctx: { level: number; index: number }): 
 | `scoped`              | `boolean`                                                           | Limits checkbox state propagation to scoped nodes.                        | `false`      |
 | `canDeleteRoot`       | `boolean`                                                           | Allows deleting root nodes.                                               | `false`      |
 | `tpl`                 | `(node: TreeNode, ctx: { level: number; index: number }, parent: TreeNode | null, index: number, props: any) => VNode` | Custom node rendering function. | None         |
-| `maxLevel`            | `number`                                                            | Maximum depth of the tree.                                                | None         |
+| `maxLevel`            | `number`                                                            | Maximum depth of the tree.                                                | `10`         |
 | `topMustExpand`       | `boolean`                                                           | Forces top-level nodes to expand.                                         | `false`      |
 | `allowGetParentNode`  | `boolean`                                                           | Allows accessing parent node references.                                  | `false`      |
 | `level`               | `number`                                                            | Current level of the tree (internal use).                                 | `0`          |
@@ -313,6 +355,7 @@ const customTemplate = (node: TreeNode, ctx: { level: number; index: number }): 
 |--------------------|---------------------------------------------------------------------------|------------------------------------------------------|
 | `node-check`       | `(node: TreeNode, checked: boolean, position: Position)`                  | Emitted when a checkbox state changes.               |
 | `node-expand`      | `(node: TreeNode, expanded: boolean, position: Position)`                 | Emitted when a node is expanded or collapsed.        |
+| `node-click`       | `(node: TreeNode, selected: boolean)`                                    | Emitted when a node is clicked, indicating its selection state. |
 | `async-load-nodes` | `(node: TreeNode)`                                                       | Emitted when a node with `async: true` is expanded.  |
 | `node-mouse-over`  | `(node: TreeNode, index: number, parent: TreeNode | null)`                | Emitted when hovering over a node.                   |
 | `node-drop`        | `(draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null)` | Emitted when a node is dropped. |
@@ -326,7 +369,7 @@ const customTemplate = (node: TreeNode, ctx: { level: number; index: number }): 
 | `addNodes`          | `(node: TreeNode, newNodes: (TreeNode | string)[])`                       | Adds multiple nodes to the tree.                    |
 | `delNode`           | `(node: TreeNode, parent: TreeNode | null, index: number)`                 | Deletes a node from the tree.                       |
 | `searchNodes`       | `(keyword: string)`                                                       | Searches for nodes matching the keyword.            |
-| `nodeSelected`      | `(node: TreeNode, position: Position)`                                    | Selects a node.                                     |
+| `nodeSelected`      | `(node: TreeNode, position: Position)`                                    | Selects a node programmatically.                    |
 | `childCheckedHandle`| `(node: TreeNode, checked: boolean)`                                      | Handles child node checkbox state changes.          |
 | `findNode`          | `(nodes: TreeNode[], title: string): TreeNode | null`                     | Finds a node by title.                              |
 | `getCheckedNodes`   | `(leafOnly: boolean, includeHalfChecked: boolean): TreeNode[]`            | Returns checked nodes.                              |

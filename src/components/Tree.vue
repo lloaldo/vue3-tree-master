@@ -46,6 +46,7 @@ const emit = defineEmits<{
   (e: 'node-mouse-over', node: TreeNode, index: number, parent: TreeNode | null): void;
   (e: 'node-drop', draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null): void;
   (e: 'drag-start', node: TreeNode): void;
+  (e: 'node-click', node: TreeNode, selected: boolean): void; 
 }>();
 
 const treeMixins = useTreeMixins();
@@ -201,15 +202,35 @@ function emitEventToTree(...args: EmitEventArgs) {
   }
 }
 
+// const nodeSelected = (node: TreeNode, position: Position) => {
+//   if (node.selDisabled) return;
+//   if (props.multiple) {
+//     node.selected = !node.selected;
+//   } else {
+//     node.selected = true;
+//   }
+//   emit('node-mouse-over', node, position.index, null);
+// };
 const nodeSelected = (node: TreeNode, position: Position) => {
   if (node.selDisabled) return;
   if (props.multiple) {
     node.selected = !node.selected;
   } else {
+    // Desmarcar otros nodos si no es modo múltiple
+    treeData.value.forEach((n) => traverse(n, node));
     node.selected = true;
   }
-  emit('node-mouse-over', node, position.index, null);
+  emit('node-click', node, node.selected); // Emitir evento node-click
 };
+
+function traverse(node: TreeNode, selectedNode: TreeNode) {
+  if (node !== selectedNode) {
+    node.selected = false;
+  }
+  if (node.children) {
+    node.children.forEach((child) => traverse(child, selectedNode));
+  }
+}
 
 const childCheckedHandle = (node: TreeNode, checked: boolean) => {
   childChecked(node, checked, props.halfcheck || false);
