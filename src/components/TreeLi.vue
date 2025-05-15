@@ -64,21 +64,21 @@ import TreeUl from './TreeUl.vue';
 import Render from './Render.vue';
 import Loading from './Loading.vue';
 import { useTreeMixins } from './composables/useTreeMixins';
-import type { TreeNode, TreeContext } from './types';
+import type { TreeViewNode, TreeContext } from '@/types';
 
 // Props con tipos
 const props = defineProps<{
-  item: TreeNode;
+  item: TreeViewNode;
   index?: number;
   dataLength?: number;
-  parent?: TreeNode | null;
+  parent?: TreeViewNode | null;
   multiple?: boolean;
   draggable?: boolean;
   dragAfterExpanded?: boolean;
   halfcheck?: boolean;
   scoped?: boolean;
   canDeleteRoot?: boolean;
-  tpl?: (node: TreeNode, ctx: { level: number; index: number }, parent: TreeNode | null, index: number, props: any) => VNode;
+  tpl?: (node: TreeViewNode, ctx: { level: number; index: number }, parent: TreeViewNode | null, index: number, props: any) => VNode;
   maxLevel?: number;
   level?: number;
   topMustExpand?: boolean;
@@ -197,7 +197,7 @@ watch(
 );
 
 // Métodos
-function drag(node: TreeNode, ev: DragEvent) {
+function drag(node: TreeViewNode, ev: DragEvent) {
   const guidValue = guid();
   setDragNode(guidValue, node, props.parent ?? null);
   ev.dataTransfer?.setData('guid', guidValue);
@@ -208,7 +208,7 @@ function dragover(ev: DragEvent) {
   ev.preventDefault();
 }
 
-function expandNode(node: TreeNode) {
+function expandNode(node: TreeViewNode) {
   const expended = !node.expanded;
   setAttr(node, 'expanded', expended);
   setAttr(node, 'hasExpanded', true);
@@ -218,7 +218,7 @@ function expandNode(node: TreeNode) {
   emitEventToTree('node-expand', node, expended, position.value);
 }
 
-function nodeCheck(node: TreeNode, checked: boolean) {
+function nodeCheck(node: TreeViewNode, checked: boolean) {
   node.checked = checked;
   if (!(props.scoped ?? defaultProps.scoped)) {
     const halfcheck = props.halfcheck ?? defaultProps.halfcheck;
@@ -229,11 +229,11 @@ function nodeCheck(node: TreeNode, checked: boolean) {
   }
 }
 
-function nodeMouseOver(node: TreeNode, index: number, parent: TreeNode | null) {
+function nodeMouseOver(node: TreeViewNode, index: number, parent: TreeViewNode | null) {
   emitEventToTree('node-mouse-over', node, index, parent);
 }
 
-function changeNodeCheckStatus(node: TreeNode, ev: Event) {
+function changeNodeCheckStatus(node: TreeViewNode, ev: Event) {
   const checked = (ev.target as HTMLInputElement).checked;
   nodeCheck(node, checked);
   emitEventToTree('node-check', node, checked, position.value);

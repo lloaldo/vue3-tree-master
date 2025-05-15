@@ -23,30 +23,30 @@ import TreeUl from './TreeUl.vue';
 import { useTreeMixins } from './composables/useTreeMixins';
 import { useTreeLogic } from './composables/useTreeLogic';
 import { VNode } from 'vue';
-import type { TreeNode, TreeContext, Position, TreeExposedMethods, EmitEventArgs } from './types';
+import type { TreeViewNode, TreeContext, Position, TreeExposedMethods, EmitEventArgs } from '@/types';
 
 const props = defineProps<{
-  data: TreeNode[];
+  data: TreeViewNode[];
   multiple?: boolean;
   draggable?: boolean;
   dragAfterExpanded?: boolean;
   halfcheck?: boolean;
   scoped?: boolean;
   canDeleteRoot?: boolean;
-  tpl?: (node: TreeNode, ctx: { level: number; index: number }, parent: TreeNode | null, index: number, props: any) => VNode;
+  tpl?: (node: TreeViewNode, ctx: { level: number; index: number }, parent: TreeViewNode | null, index: number, props: any) => VNode;
   maxLevel?: number;
   topMustExpand?: boolean;
   allowGetParentNode?: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: 'node-check', node: TreeNode, checked: boolean, position: Position): void;
-  (e: 'node-expand', node: TreeNode, expanded: boolean, position: Position): void;
-  (e: 'async-load-nodes', node: TreeNode): void;
-  (e: 'node-mouse-over', node: TreeNode, index: number, parent: TreeNode | null): void;
-  (e: 'node-drop', draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null): void;
-  (e: 'drag-start', node: TreeNode): void;
-  (e: 'node-click', node: TreeNode, selected: boolean): void; 
+  (e: 'node-check', node: TreeViewNode, checked: boolean, position: Position): void;
+  (e: 'node-expand', node: TreeViewNode, expanded: boolean, position: Position): void;
+  (e: 'async-load-nodes', node: TreeViewNode): void;
+  (e: 'node-mouse-over', node: TreeViewNode, index: number, parent: TreeViewNode | null): void;
+  (e: 'node-drop', draggedNode: TreeViewNode, targetNode: TreeViewNode | null, targetIndex: number, targetParent: TreeViewNode | null): void;
+  (e: 'drag-start', node: TreeViewNode): void;
+  (e: 'node-click', node: TreeViewNode, selected: boolean): void; 
 }>();
 
 const treeMixins = useTreeMixins();
@@ -54,7 +54,7 @@ const { getDragNode, cleanDragNode } = treeMixins;
 const { expandedNodes, toggleNode } = useTreeLogic();
 
 // Definimos treeData como un ref para que getCheckedNodes y getSelectedNodes funcionen
-const treeData = ref<TreeNode[]>(props.data);
+const treeData = ref<TreeViewNode[]>(props.data);
 
 watch(
   () => props.data,
@@ -81,7 +81,7 @@ function init() {
   );
 }
 
-function initNode(nodes: TreeNode[], parent: TreeNode | null, level: number, path: string) {
+function initNode(nodes: TreeViewNode[], parent: TreeViewNode | null, level: number, path: string) {
   nodes.forEach((node, index) => {
     node.parent = parent;
     node.level = level;
@@ -92,7 +92,7 @@ function initNode(nodes: TreeNode[], parent: TreeNode | null, level: number, pat
   });
 }
 
-function setAttr(node: TreeNode, attr: keyof TreeNode, val: any) {
+function setAttr(node: TreeViewNode, attr: keyof TreeViewNode, val: any) {
   node[attr] = val;
   // Sincronizar estado de expansión con useTreeLogic
   if (attr === 'expanded' && node.id !== undefined) {
@@ -104,13 +104,13 @@ function setAttr(node: TreeNode, attr: keyof TreeNode, val: any) {
   }
 }
 
-const isLeaf = (node: TreeNode) => {
+const isLeaf = (node: TreeViewNode) => {
   return !(node.children && node.children.length);
 };
 
-const childChecked = (node: TreeNode, checked: boolean, halfcheck: boolean) => {
+const childChecked = (node: TreeViewNode, checked: boolean, halfcheck: boolean) => {
   if (node.children?.length) {
-    node.children.forEach((child: TreeNode) => {
+    node.children.forEach((child: TreeViewNode) => {
       if (!child.chkDisabled) {
         child.checked = checked;
         child.parentCheckedToChildren = true;
@@ -123,10 +123,10 @@ const childChecked = (node: TreeNode, checked: boolean, halfcheck: boolean) => {
   }
 };
 
-const parentChecked = (node: TreeNode | null | undefined, checked: boolean, halfcheck: boolean) => {
+const parentChecked = (node: TreeViewNode | null | undefined, checked: boolean, halfcheck: boolean) => {
   if (!node) return false;
   let checkedCount = 0;
-  node.children?.forEach((child: TreeNode) => {
+  node.children?.forEach((child: TreeViewNode) => {
     if (child.checked) {
       checkedCount++;
     }
@@ -154,27 +154,27 @@ function emitEventToTree(...args: EmitEventArgs) {
   const event = args[0];
   switch (event) {
     case 'node-check': {
-      const [, node, checked, position] = args as ['node-check', TreeNode, boolean, Position];
+      const [, node, checked, position] = args as ['node-check', TreeViewNode, boolean, Position];
       emit('node-check', node, checked, position);
       break;
     }
     case 'node-expand': {
-      const [, node, expanded, position] = args as ['node-expand', TreeNode, boolean, Position];
+      const [, node, expanded, position] = args as ['node-expand', TreeViewNode, boolean, Position];
       emit('node-expand', node, expanded, position);
       break;
     }
     case 'async-load-nodes': {
-      const [, node] = args as ['async-load-nodes', TreeNode];
+      const [, node] = args as ['async-load-nodes', TreeViewNode];
       emit('async-load-nodes', node);
       break;
     }
     case 'node-mouse-over': {
-      const [, node, index, parent] = args as ['node-mouse-over', TreeNode, number, TreeNode | null];
+      const [, node, index, parent] = args as ['node-mouse-over', TreeViewNode, number, TreeViewNode | null];
       emit('node-mouse-over', node, index, parent);
       break;
     }
     case 'node-drop': {
-      const [, ev, targetNode, targetIndex, targetParent] = args as ['node-drop', DragEvent, TreeNode, number, TreeNode | null];
+      const [, ev, targetNode, targetIndex, targetParent] = args as ['node-drop', DragEvent, TreeViewNode, number, TreeViewNode | null];
       const guid = ev.dataTransfer?.getData('guid');
       if (!guid) {
         // Tree.vue node-drop: No GUID found in dataTransfer
@@ -193,7 +193,7 @@ function emitEventToTree(...args: EmitEventArgs) {
       break;
     }
     case 'drag-start': {
-      const [, node] = args as ['drag-start', TreeNode];
+      const [, node] = args as ['drag-start', TreeViewNode];
       emit('drag-start', node);
       break;
     }
@@ -202,7 +202,7 @@ function emitEventToTree(...args: EmitEventArgs) {
   }
 }
 
-// const nodeSelected = (node: TreeNode, position: Position) => {
+// const nodeSelected = (node: TreeViewNode, position: Position) => {
 //   if (node.selDisabled) return;
 //   if (props.multiple) {
 //     node.selected = !node.selected;
@@ -211,7 +211,7 @@ function emitEventToTree(...args: EmitEventArgs) {
 //   }
 //   emit('node-mouse-over', node, position.index, null);
 // };
-const nodeSelected = (node: TreeNode, position: Position) => {
+const nodeSelected = (node: TreeViewNode, position: Position) => {
   if (node.selDisabled) return;
   if (props.multiple) {
     node.selected = !node.selected;
@@ -223,7 +223,7 @@ const nodeSelected = (node: TreeNode, position: Position) => {
   emit('node-click', node, node.selected); // Emitir evento node-click
 };
 
-function traverse(node: TreeNode, selectedNode: TreeNode) {
+function traverse(node: TreeViewNode, selectedNode: TreeViewNode) {
   if (node !== selectedNode) {
     node.selected = false;
   }
@@ -232,11 +232,11 @@ function traverse(node: TreeNode, selectedNode: TreeNode) {
   }
 }
 
-const childCheckedHandle = (node: TreeNode, checked: boolean) => {
+const childCheckedHandle = (node: TreeViewNode, checked: boolean) => {
   childChecked(node, checked, props.halfcheck || false);
 };
 
-const findNode = (nodes: TreeNode[], title: string): TreeNode | null => {
+const findNode = (nodes: TreeViewNode[], title: string): TreeViewNode | null => {
   for (const node of nodes) {
     if (node.title === title) return node;
     if (node.children) {
@@ -247,7 +247,7 @@ const findNode = (nodes: TreeNode[], title: string): TreeNode | null => {
   return null;
 };
 
-const addNode = (node: TreeNode, newNode: TreeNode) => {
+const addNode = (node: TreeViewNode, newNode: TreeViewNode) => {
   if (!node.children) {
     node.children = [];
   }
@@ -255,7 +255,7 @@ const addNode = (node: TreeNode, newNode: TreeNode) => {
   setAttr(node, 'expanded', true);
 };
 
-const addNodes = (node: TreeNode, newNodes: (TreeNode | string)[]) => {
+const addNodes = (node: TreeViewNode, newNodes: (TreeViewNode | string)[]) => {
   if (!node.children) {
     node.children = [];
   }
@@ -269,7 +269,7 @@ const addNodes = (node: TreeNode, newNodes: (TreeNode | string)[]) => {
   setAttr(node, 'expanded', true);
 };
 
-const delNode = (node: TreeNode, parent: TreeNode | null, index: number) => {
+const delNode = (node: TreeViewNode, parent: TreeViewNode | null, index: number) => {
   if (parent && parent.children) {
     parent.children.splice(index, 1);
   } else if (props.canDeleteRoot) {
@@ -278,7 +278,7 @@ const delNode = (node: TreeNode, parent: TreeNode | null, index: number) => {
 };
 
 const searchNodes = (keyword: string) => {
-  const search = (nodes: TreeNode[]) => {
+  const search = (nodes: TreeViewNode[]) => {
     nodes.forEach((node) => {
       const title = node.title || '';
       node.searched = title.includes(keyword);
@@ -290,10 +290,10 @@ const searchNodes = (keyword: string) => {
   search(props.data);
 };
 
-const getCheckedNodes = (leafOnly: boolean, includeHalfChecked: boolean): TreeNode[] => {
-  const checkedNodes: TreeNode[] = [];
+const getCheckedNodes = (leafOnly: boolean, includeHalfChecked: boolean): TreeViewNode[] => {
+  const checkedNodes: TreeViewNode[] = [];
 
-  function traverse(nodes: TreeNode[]) {
+  function traverse(nodes: TreeViewNode[]) {
     for (const node of nodes) {
       const isLeafNode = !node.children?.length;
       const shouldInclude =
@@ -312,10 +312,10 @@ const getCheckedNodes = (leafOnly: boolean, includeHalfChecked: boolean): TreeNo
   return checkedNodes;
 };
 
-const getSelectedNodes = (leafOnly: boolean, includeHalfChecked: boolean): TreeNode[] => {
-  const selectedNodes: TreeNode[] = [];
+const getSelectedNodes = (leafOnly: boolean, includeHalfChecked: boolean): TreeViewNode[] => {
+  const selectedNodes: TreeViewNode[] = [];
 
-  function traverse(nodes: TreeNode[]) {
+  function traverse(nodes: TreeViewNode[]) {
     for (const node of nodes) {
       const isLeafNode = !node.children?.length;
       const shouldInclude =
@@ -334,14 +334,14 @@ const getSelectedNodes = (leafOnly: boolean, includeHalfChecked: boolean): TreeN
   return selectedNodes;
 };
 
-const setNodeAttr = (node: TreeNode, attr: keyof TreeNode, val: any) => {
+const setNodeAttr = (node: TreeViewNode, attr: keyof TreeViewNode, val: any) => {
   node[attr] = val;
 };
 
-const getNodes = (condition?: (node: TreeNode) => boolean): TreeNode[] => {
-  const result: TreeNode[] = [];
+const getNodes = (condition?: (node: TreeViewNode) => boolean): TreeViewNode[] => {
+  const result: TreeViewNode[] = [];
 
-  function traverse(nodes: TreeNode[]) {
+  function traverse(nodes: TreeViewNode[]) {
     for (const node of nodes) {
       if (!condition || condition(node)) {
         result.push(node);
@@ -356,7 +356,7 @@ const getNodes = (condition?: (node: TreeNode) => boolean): TreeNode[] => {
   return result;
 };
 
-function moveNode(draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null) {
+function moveNode(draggedNode: TreeViewNode, targetNode: TreeViewNode | null, targetIndex: number, targetParent: TreeViewNode | null) {
 
   // Validar que el nodo arrastrado tenga un identificador válido
   if (!draggedNode.id && !draggedNode.title) {
@@ -365,7 +365,7 @@ function moveNode(draggedNode: TreeNode, targetNode: TreeNode | null, targetInde
   }
 
   // Función para eliminar el nodo de su posición original
-  const removeFromParent = (nodes: TreeNode[], nodeToRemove: TreeNode): boolean => {
+  const removeFromParent = (nodes: TreeViewNode[], nodeToRemove: TreeViewNode): boolean => {
     const index = nodes.findIndex((n) => 
       (nodeToRemove.id && n.id === nodeToRemove.id) || 
       (nodeToRemove.title && n.title === nodeToRemove.title)
@@ -453,10 +453,10 @@ defineExpose(methods);
 watch(
   () => props.data,
   () => {
-    const initTreeData = (nodes: TreeNode[]) => {
+    const initTreeData = (nodes: TreeViewNode[]) => {
       nodes.forEach((node) => {
         if (node.children?.length) {
-          node.children.forEach((child: TreeNode, index: number) => {
+          node.children.forEach((child: TreeViewNode, index: number) => {
             child.parent = node;
             child.level = (node.level || 0) + 1;
             child.path = `${node.path || '0'}-${index}`;

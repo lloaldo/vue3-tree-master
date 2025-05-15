@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "type": "module",
   "description": "A tree view component for Vue 3 applications",
-  "main": "./dist/vue3-tree-master.umd.cjs",
-  "module": "./dist/vue3-tree-master.js",
-  "types": "./dist/vue3-tree-master.d.ts",
+  "main": "./dist/vue3-tree-master.cjs.js",
+  "module": "./dist/vue3-tree-master.es.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/vue3-tree-master.js",
-      "require": "./dist/vue3-tree.master.umd.cjs"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/vue3-tree-master.es.js",
+      "require": "./dist/vue3-tree-master.cjs.js"
     },
     "./style.css": "./dist/style.css"
   },

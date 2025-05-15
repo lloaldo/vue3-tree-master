@@ -10,16 +10,21 @@ export default defineConfig({
     hmr: {
       overlay: true,
       host: 'localhost',
-      // Forzar HMR para detectar cambios más rápido
-      // clientPort: 24678,
     },
     watch: {
-      usePolling: true, // Detecta cambios en sistemas con problemas de notificación
+      usePolling: true,
     },
   },
   plugins: [
     vue(),
-    dts({ insertTypesEntry: true }),
+    dts({
+      insertTypesEntry: true,
+      outDir: 'dist/types',
+      include: ['src/**/*'],
+      exclude: ['src/**/*.spec.ts'], // Excluye archivos de prueba si los hay
+      rollupTypes: true,
+      tsconfigPath: './tsconfig.json', // Especifica el tsconfig explícitamente
+    }),
   ],
   resolve: {
     alias: {
@@ -27,13 +32,14 @@ export default defineConfig({
     },
   },
   build: {
-    sourcemap: false, // Desactiva source maps en producción
-    emptyOutDir: true, // Limpia el directorio 'dist' antes de cada build
+    sourcemap: false,
+    emptyOutDir: true,
     outDir: 'dist',
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'Vue3TreeMaster',
-      fileName: 'vue3-tree-master',
+      fileName: (format) => `vue3-tree-master.${format}.js`, // Nombres fijos por formato
+      formats: ['es', 'cjs', 'umd'], // Especifica todos los formatos
     },
     rollupOptions: {
       external: ['vue'],
@@ -41,12 +47,13 @@ export default defineConfig({
         globals: {
           vue: 'Vue',
         },
-        // Agrega hash para evitar problemas de caché en producción
-        entryFileNames: 'vue3-tree-master-[hash].js',
+        exports: 'named',
+        preserveModules: false,
+        // Elimina entryFileNames para evitar conflictos
       },
     },
   },
   css: {
-    devSourcemap: false, // Desactiva source maps para CSS en desarrollo
+    devSourcemap: false,
   },
 });

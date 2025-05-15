@@ -49,8 +49,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, reactive } from 'vue';
-import Tree from './Tree.vue';
-import type { TreeNode, Position } from './types';
+import Tree from './TreeView.vue';
+import type { TreeViewNode, Position } from '@/types';
 
 // Props
 const props = defineProps<{
@@ -58,13 +58,13 @@ const props = defineProps<{
   searchable?: boolean;
   pleasechoosetext?: string;
   searchtext?: string;
-  data: TreeNode[];
-  parent?: TreeNode | null;
+  data: TreeViewNode[];
+  parent?: TreeViewNode | null;
   multiple?: boolean;
   draggable?: boolean;
   dragAfterExpanded?: boolean;
-  tpl?: (node: TreeNode, ctx: any, parent: TreeNode | null, index: number, props: any) => any;
-  searchFilter?: (node: TreeNode) => boolean;
+  tpl?: (node: TreeViewNode, ctx: any, parent: TreeViewNode | null, index: number, props: any) => any;
+  searchFilter?: (node: TreeViewNode) => boolean;
 }>();
 
 // Valores por defecto
@@ -80,20 +80,20 @@ const defaultProps = {
 // Emits
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string[]): void;
-  (e: 'async-load-nodes', node: TreeNode): void;
-  (e: 'node-click', node: TreeNode, selected: boolean): void;
-  (e: 'drop-tree-node-checked', node: TreeNode, checked: boolean): void;
-  (e: 'node-expanded', node: TreeNode, expanded: boolean, position: Position): void;
-  (e: 'drag-node-end', dragNode: TreeNode, targetNode: TreeNode, parentNode: TreeNode | null, event: DragEvent): void;
-  (e: 'node-drop', draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null): void;
-  (e: 'drag-start', node: TreeNode): void;
+  (e: 'async-load-nodes', node: TreeViewNode): void;
+  (e: 'node-click', node: TreeViewNode, selected: boolean): void;
+  (e: 'drop-tree-node-checked', node: TreeViewNode, checked: boolean): void;
+  (e: 'node-expanded', node: TreeViewNode, expanded: boolean, position: Position): void;
+  (e: 'drag-node-end', dragNode: TreeViewNode, targetNode: TreeViewNode, parentNode: TreeViewNode | null, event: DragEvent): void;
+  (e: 'node-drop', draggedNode: TreeViewNode, targetNode: TreeViewNode | null, targetIndex: number, targetParent: TreeViewNode | null): void;
+  (e: 'drag-start', node: TreeViewNode): void;
 }>();
 
 // Datos reactivos
 const searchword = ref<string>('');
 const open = ref<boolean>(false);
 const selectedItems = ref<string[]>(props.modelValue ?? []);
-const treeData = reactive<TreeNode[]>([...props.data]);
+const treeData = reactive<TreeViewNode[]>([...props.data]);
 
 // Referencias
 const txtbox = ref<HTMLElement | null>(null);
@@ -135,38 +135,38 @@ onMounted(() => {
 });
 
 // Métodos
-const handleAsyncLoadNodes = (node: TreeNode) => {
+const handleAsyncLoadNodes = (node: TreeViewNode) => {
   if (node.async && !node.children) {
     emit('async-load-nodes', node);
   }
 };
 
-const handleNodeExpanded = (node: TreeNode, expanded: boolean, position: Position) => {
+const handleNodeExpanded = (node: TreeViewNode, expanded: boolean, position: Position) => {
   emit('node-expanded', node, expanded, position);
 };
 
-const handleDragNodeEnd = (dragNode: TreeNode, targetNode: TreeNode, parentNode: TreeNode | null, event: DragEvent) => {
+const handleDragNodeEnd = (dragNode: TreeViewNode, targetNode: TreeViewNode, parentNode: TreeViewNode | null, event: DragEvent) => {
   open.value = true;
   emit('drag-node-end', dragNode, targetNode, parentNode, event);
 };
 
-const handleDragStart = (node: TreeNode) => {
+const handleDragStart = (node: TreeViewNode) => {
   open.value = true;
 };
 
-const handleNodeDrop = (draggedNode: TreeNode, targetNode: TreeNode | null, targetIndex: number, targetParent: TreeNode | null) => {
+const handleNodeDrop = (draggedNode: TreeViewNode, targetNode: TreeViewNode | null, targetIndex: number, targetParent: TreeViewNode | null) => {
   open.value = true;
   emit('node-drop', draggedNode, targetNode, targetIndex, targetParent);
 };
 
 
-const nodeClick = (node: TreeNode, selected: boolean) => {
+const nodeClick = (node: TreeViewNode, selected: boolean) => {
   getNewSelectedNodes();
   emit('node-click', node, selected);
 };
 
-const getSelectedAndCheckedNodes = (): TreeNode[] => {
-  let checkedNode: TreeNode[] = [];
+const getSelectedAndCheckedNodes = (): TreeViewNode[] => {
+  let checkedNode: TreeViewNode[] = [];
   if (props.multiple ?? defaultProps.multiple) {
     checkedNode = dropTree.value?.getCheckedNodes(true, false) ?? [];
   }
@@ -189,12 +189,12 @@ const rmNode = (text: string, eventFromNode = false) => {
   getNewSelectedNodes();
 };
 
-const nodeCheckStatusChange = (node: TreeNode, checked: boolean) => {
-  const treeNodes = dropTree.value?.getCheckedNodes(true, false) ?? [];
-  if (!treeNodes.length) {
+const nodeCheckStatusChange = (node: TreeViewNode, checked: boolean) => {
+  const TreeViewNodes = dropTree.value?.getCheckedNodes(true, false) ?? [];
+  if (!TreeViewNodes.length) {
     selectedItems.value = [];
   } else {
-    selectedItems.value = treeNodes.map((node) => node.title ?? '');
+    selectedItems.value = TreeViewNodes.map((node) => node.title ?? '');
   }
   emit('drop-tree-node-checked', node, checked);
 };
@@ -222,7 +222,7 @@ const leaveTextTag = () => {
   }
 };
 
-const initTreeStatus = (data: TreeNode[]) => {
+const initTreeStatus = (data: TreeViewNode[]) => {
   for (const node of data) {
     if ((props.modelValue ?? []).findIndex((text) => text === node.title) > -1) {
       node.selected = true;

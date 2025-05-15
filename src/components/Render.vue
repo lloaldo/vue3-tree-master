@@ -11,15 +11,15 @@
 
 <script setup lang="ts">
 import { computed, inject } from 'vue';
-import type { TreeNode, TreeContext } from './types';
+import type { TreeViewNode, TreeContext } from '@/types';
 
 // Props con tipos
 const props = defineProps<{
-  node: TreeNode;
-  parent?: TreeNode | null;
-  tpl?: (node: TreeNode, ctx: any, parent: TreeNode | null, index: number, props: any) => any;
+  node: TreeViewNode;
+  parent?: TreeViewNode | null;
+  tpl?: (node: TreeViewNode, ctx: any, parent: TreeViewNode | null, index: number, props: any) => any;
   index: number;
-  nodeMouseOver: (node: TreeNode, index: number, parent: TreeNode | null) => void;
+  nodeMouseOver: (node: TreeViewNode, index: number, parent: TreeViewNode | null) => void;
   level: number;
 }>();
 

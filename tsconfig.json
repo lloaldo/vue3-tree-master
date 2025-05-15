@@ -1,21 +1,25 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "strict": true,
     "jsx": "preserve",
     "moduleResolution": "node",
+    "declaration": true,
+    "declarationDir": "dist/types", // Genera tipos directamente en /dist/types
+    "emitDeclarationOnly": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": ["node"],
+    "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["src/*"]
     },
-    "lib": ["esnext", "dom"]
+    "lib": ["esnext", "dom"],
+    "outDir": "./dist"
   },
-  "include": ["src/**/*", "vite.config.ts", "declarations.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
 }

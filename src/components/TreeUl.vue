@@ -28,19 +28,19 @@
 import { inject, ref } from 'vue';
 import TreeLi from './TreeLi.vue';
 import { useTreeMixins } from './composables/useTreeMixins';
-import type { TreeNode, TreeContext } from './types';
+import type { TreeViewNode, TreeContext } from '@/types';
 
 // Props con tipos
 const props = defineProps<{
-  data: TreeNode[];
-  parent?: TreeNode | null;
+  data: TreeViewNode[];
+  parent?: TreeViewNode | null;
   multiple?: boolean;
   draggable?: boolean;
   dragAfterExpanded?: boolean;
   halfcheck?: boolean;
   scoped?: boolean;
   canDeleteRoot?: boolean;
-  tpl?: (node: TreeNode, ctx: any, parent: TreeNode | null, index: number, props: any) => any;
+  tpl?: (node: TreeViewNode, ctx: any, parent: TreeViewNode | null, index: number, props: any) => any;
   maxLevel?: number;
   level?: number;
   topMustExpand?: boolean;
@@ -86,7 +86,7 @@ function dragover(ev: DragEvent) {
   }
 }
 
-function drop(ev: DragEvent, targetNode: TreeNode | null, targetIndex: number) {
+function drop(ev: DragEvent, targetNode: TreeViewNode | null, targetIndex: number) {
   if (!(ev instanceof DragEvent)) {
     return;
   }
@@ -123,7 +123,7 @@ function drop(ev: DragEvent, targetNode: TreeNode | null, targetIndex: number) {
   }
 
   // Ajustar targetNode para evitar el error de TypeScript
-  const safeTargetNode: TreeNode = targetNode || ({} as TreeNode); // Solución temporal
+  const safeTargetNode: TreeViewNode = targetNode || ({} as TreeViewNode); // Solución temporal
   emitEventToTree('node-drop', ev, safeTargetNode, adjustedIndex, adjustedParent);
 
   cleanDragNode(guid);

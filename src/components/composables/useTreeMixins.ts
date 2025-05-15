@@ -1,8 +1,8 @@
 import { ref } from 'vue';
-import type { TreeNode } from '../types';
+import type { TreeViewNode } from '@/types';
 
 // Estado global único para dragNodes
-const dragNodes = ref<Map<string, { node: TreeNode; parent: TreeNode | null }>>(new Map());
+const dragNodes = ref<Map<string, { node: TreeViewNode; parent: TreeViewNode | null }>>(new Map());
 
 export const useTreeMixins = (() => {
   let instance: ReturnType<typeof createMixins>;
@@ -16,7 +16,7 @@ export const useTreeMixins = (() => {
       });
     };
 
-    const setDragNode = (guid: string, node: TreeNode, parent: TreeNode | null) => {
+    const setDragNode = (guid: string, node: TreeViewNode, parent: TreeViewNode | null) => {
       dragNodes.value.set(guid, { node, parent });
     };
 

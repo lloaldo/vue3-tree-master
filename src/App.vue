@@ -8,7 +8,7 @@
         placeholder="search..."
       />
       <button class="tree-search-btn" type="button" @click="search">search</button>
-      <Tree
+      <TreeView
         ref="tree1"
         :can-delete-root="true"
         :data="treeData1"
@@ -20,7 +20,7 @@
       />
     </div>
     <div class="tree3">
-      <Tree
+      <TreeView
         ref="tree2"
         :can-delete-root="true"
         :data="treeData2"
@@ -43,15 +43,15 @@
 
 <script setup lang="ts">
 import { ref, h, onMounted, VNode, reactive } from 'vue';
-import Tree from './components/Tree.vue';
+import TreeView from './components/TreeView.vue';
 import SelectTree from './components/SelectTree.vue';
-import type { TreeNode, TreeExposedMethods } from './components/types';
+import type { TreeViewNode, TreeExposedMethods } from '@/types';
 
 // Datos reactivos
 const searchword = ref<string>('');
 const initSelected = ref<string[]>(['node 1-1']);
 
-const treeData1 = reactive<TreeNode[]>([
+const treeData1 = reactive<TreeViewNode[]>([
   {
     id: 'node1',
     title: 'node1',
@@ -79,7 +79,7 @@ const treeData1 = reactive<TreeNode[]>([
   },
 ]);
 
-const treeData2 = reactive<TreeNode[]>([
+const treeData2 = reactive<TreeViewNode[]>([
   {
     id: 'node2',
     title: 'node1',
@@ -88,7 +88,7 @@ const treeData2 = reactive<TreeNode[]>([
   },
 ]);
 
-const treeData3 = reactive<TreeNode[]>([
+const treeData3 = reactive<TreeViewNode[]>([
   {
     id: 'node1',
     title: 'node1',
@@ -114,7 +114,7 @@ const tree1 = ref<TreeExposedMethods | null>(null);
 const tree2 = ref<TreeExposedMethods | null>(null);
 
 // Inicializar visibilidad y estado de expansión de los nodos
-const initializeTree = (nodes: TreeNode[]) => {
+const initializeTree = (nodes: TreeViewNode[]) => {
   for (const node of nodes) {
     node.visible = true;
     if (node.expanded) {
@@ -133,11 +133,11 @@ onMounted(() => {
 });
 
 // Métodos
-const nodechecked = (node: TreeNode, checked: boolean) => {
+const nodechecked = (node: TreeViewNode, checked: boolean) => {
   alert(`That a node-check event ... ${node.title} ${checked}`);
 };
 
-const tpl = (node: TreeNode, ctx: { level: number; index: number }, parent: TreeNode | null, index: number): VNode => {
+const tpl = (node: TreeViewNode, ctx: { level: number; index: number }, parent: TreeViewNode | null, index: number): VNode => {
   const titleClass = node.selected
     ? 'node-title node-selected'
     : 'node-title' + (node.searched ? ' node-searched' : '');
@@ -178,7 +178,7 @@ const tpl = (node: TreeNode, ctx: { level: number; index: number }, parent: Tree
   return nodeContent;
 };
 
-const asyncLoad1 = async (node: TreeNode) => {
+const asyncLoad1 = async (node: TreeViewNode) => {
   const { checked = false } = node;
   node.loading = true;
   const newNodes = await new Promise<string[]>((resolve) =>
@@ -191,10 +191,10 @@ const asyncLoad1 = async (node: TreeNode) => {
   }
 };
 
-const asyncLoad2 = async (node: TreeNode) => {
+const asyncLoad2 = async (node: TreeViewNode) => {
   const { checked = false } = node;
   node.loading = true;
-  const newNodes = await new Promise<TreeNode[]>((resolve) =>
+  const newNodes = await new Promise<TreeViewNode[]>((resolve) =>
     setTimeout(() =>
       resolve([
         { title: 'test1', async: true },
@@ -215,7 +215,7 @@ const search = () => {
   tree1.value?.searchNodes(searchword.value);
 };
 
-const handleNodeClick = (node: TreeNode, selected: boolean) => {
+const handleNodeClick = (node: TreeViewNode, selected: boolean) => {
   // lastClickedNode.value = node.title;
   alert(`Node click: ${node.title} ${selected}`);
 };
