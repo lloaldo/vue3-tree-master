@@ -1,253 +1,245 @@
-/* vue3-year-calendar/src/style.css */
-
-/* Contenedor principal del calendario */
-.yc-container {
-  border-radius: 2px;
-  min-width: 0;
-  background-color: #f6f6f3;
+/* src/style.css */
+.halo-tree li span:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Fondo sutil al pasar el ratón */
 }
 
-/* Selector de años */
-.yc-year {
-  user-select: none;
-  height: 65px;
-  background-color: #fff;
-  font-size: 24px;
-  display: flex;
-  justify-content: center;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.1s; /* Transición más rápida */
 }
-
-.yc-year-chooser {
-  flex: 1;
-  max-width: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: rgba(0, 0, 0, 0.9);
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
-
-.yc-year-chooser:hover {
-  background-color: rgba(102, 102, 102, 0.1);
+.halo-tree .expand-enter-active {
+  transition: all 0.3s ease; /* Transición más rápida */
+  height: 40px; /* Altura ajustada */
+  overflow: hidden;
 }
-
-.yc-year-chooser:nth-child(4n-3) {
-  color: rgba(0, 0, 0, 0.3);
+.halo-tree .expand-leave-active {
+  transition: all 0.3s ease;
+  height: 0px;
+  overflow: hidden;
 }
-
-.yc-year-chooser:nth-child(2n) {
-  color: rgba(0, 0, 0, 0.6);
+.halo-tree .expand-enter,
+.halo-tree .expand-leave {
+  height: 0;
+  opacity: 0;
 }
-
-.yc-year-chooser:nth-child(3) {
-  box-shadow: inset 0px -3px #4792bd;
-}
-
-/* Contenedor de meses */
-.yc-months {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 15px;
-}
-
-.yc-month {
-  padding: 8px;
-  flex: 16.66%;
-  transition: transform 0.2s ease-in-out; /* Transición para el zoom */
-}
-
-.yc-month:hover {
-  transform: scale(1.10);
-  z-index: 1;
-}
-
-.yc-empty {
-  padding: 0;
-}
-
-/* Media queries para responsividad */
-@media (max-width: 1300px) {
-  .yc-month {
-    flex: 25%;
-  }
-}
-
-@media (max-width: 992px) {
-  .yc-month {
-    flex: 33.3%;
-  }
-}
-
-@media (max-width: 768px) {
-  .yc-month {
-    flex: 50%;
-  }
-}
-
-@media (max-width: 450px) {
-  .yc-month {
-    flex: 100%;
-  }
-}
-
-/* Estilos del calendario mensual */
-.yc-wrapper {
-  padding: 10px;
-}
-
-.yc-calendar {
-  background-color: #fff;
-  min-height: 295px;
-  text-align: center;
-  color: rgba(53, 60, 70, 0.8);
-  border-radius: 2px;
-  min-width: 0;
-}
-
-.yc-calendar__title {
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 1px solid rgba(196, 196, 196, 0.3);
-  font-size: 18px;
-  height: 50px;
-  margin-bottom: 12px;
-}
-
-.yc-calendar__body {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-content: flex-start;
-  padding: 0 20px;
-  min-width: 194px;
-}
-
-.yc-calendar__day {
-  flex: 14.28%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 16px;
-  height: 31px;
-  color: #5db3d4;
-}
-
-.yc-day__weektitle {
-  color: rgba(53, 60, 70, 0.8);
-}
-
-.yc-day {
+.halo-tree {
   font-size: 14px;
-  cursor: pointer;
-  user-select: none;
-  width: 22px;
-  height: 22px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  color: #e0e0e0; /* Texto claro para fondo oscuro */
+  -webkit-transition: 0.3s height ease-in-out, 0.3s padding-top ease-in-out,
+    0.3s padding-bottom ease-in-out;
+  transition: 0.3s height ease-in-out, 0.3s padding-top ease-in-out,
+    0.3s padding-bottom ease-in-out;
+}
+.halo-tree ul {
+  box-sizing: border-box;
+}
+.halo-tree ul,
+.halo-tree li {
+  list-style-type: none;
+  text-align: left;
+}
+.halo-tree .inputCheck {
+  display: inline-block;
   position: relative;
-  border-radius: 5px;
+  width: 14px;
+  height: 14px;
+  border: 1px solid #888;
+  border-radius: 2px;
+  top: 4px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 14px;
+  background-color: #2a2a2a; /* Fondo oscuro para casillas */
 }
-
-/* Estilos para días activos */
-.yc-day.your_customized_wrapper_class {
-  background-color: #0aa; /* Cyan */
-  color: white;
-}
-
-.yc-day.your_customized_wrapper_class.red {
-  background-color: rgb(233, 35, 35); /* Rojo */
-  color: white;
-}
-
-.yc-day.your_customized_wrapper_class.blue {
-  background-color: #2e5dc9; /* Azul */
-  color: white;
-}
-
-.yc-day.your_customized_wrapper_class.your_customized_classname {
-  background-color: rgb(97, 220, 155); /* Verde */
-  color: white;
-}
-
-.yc-day.your_customized_wrapper_class.custom-day {
-  background-color: rgb(0, 255, 21); /* Amarillo brillante */
-  color: white;
-}
-
-.yc-day:not(.your_customized_wrapper_class):hover {
-  background-color: rgba(102, 102, 102, 0.1);
-  border-radius: 5px;
-}
-
-.yc-calendar__day--otherMonth {
-  color: #eaeaea;
-  cursor: auto;
-}
-
-/* Estilos para modo oscuro */
-.yc-dark .yc-container {
-  background-color: #1a1a1a;
-  color: #e0e0e0;
-}
-
-.yc-dark .yc-year__button {
-  background-color: #333;
-  border-color: #555;
-  color: #e0e0e0;
-}
-
-.yc-dark .yc-year__select {
-  background-color: #333;
-  border-color: #555;
-  color: #e0e0e0;
-}
-
-.yc-dark .yc-wrapper {
-  background-color: #2a2a2a;
-  border: none; /* Eliminar cualquier borde que pueda interferir */
-}
-
-.yc-dark .yc-calendar__title {
-  color: #e0e0e0;
-}
-
-.yc-dark .yc-day__weektitle {
-  color: #aaa;
-}
-
-.yc-dark .yc-day {
-  color: #e0e0e0;
-}
-
-.yc-dark .yc-month:hover {
-  transform: scale(1.10);
+.halo-tree .inputCheck.notAllNodes:before {
+  content: "\2713";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #888;
   z-index: 1;
+  color: #fff;
 }
-
-.yc-day:hover {
-  background-color: rgba(102, 102, 102, 0.1);
-  border-radius: 5px;
+.halo-tree .inputCheck.box-checked:after {
+  content: "\2713";
+  display: block;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  text-align: center;
+  color: #fff;
 }
-
-.yc-dark .yc-day:hover {
+.halo-tree .box-halfchecked {
+  background-color: #888;
+}
+.halo-tree .box-halfchecked:after {
+  content: "\2713";
+  display: block;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+}
+.halo-tree .check {
+  display: block;
+  position: absolute;
+  font-size: 14px;
+  width: 16px;
+  height: 16px;
+  left: -5px;
+  top: -4px;
+  border: 1px solid #666;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.halo-tree .chkDisabled {
+  background-color: #444;
+  opacity: 1;
+  cursor: not-allowed;
+}
+.halo-tree li {
+  margin: 0;
+  padding: 3px 5px 3px 15px; /* Espaciado vertical reducido */
+  position: relative;
+  list-style: none;
+}
+.halo-tree li:after,
+.halo-tree li:before {
+  content: "";
+  left: -8px;
+  position: absolute;
+  right: auto;
+  border-width: 1px;
+}
+.halo-tree li:before {
+  border-left: 1px dashed #999 !important; /* Restaurado a dashed #999 con mayor especificidad */
+  bottom: 20px;
+  height: 100%;
+  top: -8px;
+  width: 1px;
+}
+.halo-tree li:after {
+  border-top: 1px dashed #999 !important; /* Restaurado a dashed #999 con mayor especificidad */
+  height: 15px;
+  top: 12px;
+  width: 25px;
+}
+.halo-tree li:last-child::before {
+  height: 20px;
+}
+.halo-tree > li.first-node:before {
+  top: 12px;
+}
+.halo-tree > li.second-node:before {
+  top: 4px;
+}
+.halo-tree > li.first-node.only-node::before {
+  border-left: none !important;
+}
+.halo-tree > li.only-node:after {
+  border-top: none !important;
+}
+.halo-tree > ul {
+  padding-left: 0;
+}
+.halo-tree ul {
+  padding-left: 17px;
+  padding-top: 5px; /* Espaciado superior reducido */
+}
+.halo-tree .tree-expand {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  text-align: center;
+  line-height: 13px;
+  border: 1px solid #888;
+  border-radius: 2px;
+  background: #2a2a2a; /* Fondo oscuro para botones */
+  color: #e0e0e0; /* Texto claro */
+  font-style: normal;
+}
+.halo-tree .tree-open {
+  line-height: 13px;
+}
+.halo-tree .tree-close:after {
+  content: "+";
+}
+.halo-tree .tree-open:after {
+  content: "\2013";
+}
+.halo-tree .tree-empty:after {
+  content: "";
+}
+.halo-tree .tree-node-el {
+  background-color: #2a2a2a; /* Fondo oscuro para nodos */
+  padding-left: 2px;
+  position: relative;
+  z-index: 3;
+}
+.halo-tree li.leaf {
+  padding-left: 15px;
+}
+.halo-tree li.leaf:after {
+  content: "";
+  left: -7px;
+  position: absolute;
+  right: auto;
+  border-width: 1px;
+  border-top: 1px dashed #999 !important; /* Restaurado a dashed #999 con mayor especificidad */
+  height: 15px;
+  top: 12px;
+  width: 25px;
+}
+.halo-tree-search-box {
+  height: 18px;
+  line-height: 18px;
+  outline: none;
+  border: 1px solid #888;
+  border-radius: 3px;
+  background-color: #333; /* Fondo oscuro para el campo de búsqueda */
+  color: #e0e0e0; /* Texto claro */
+}
+.halo-tree-search-box:focus {
+  border: 1px solid #4caf50; /* Verde para coincidir con PrimeVue */
+  box-shadow: 0 2px 2px rgba(76, 175, 80, 0.2);
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+.halo-tree .node-title {
+  padding: 3px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin: 0 2px;
+  color: #e0e0e0; /* Texto claro */
+}
+.halo-tree .node-title:hover {
+  background-color: #444; /* Fondo más oscuro al pasar el ratón */
+}
+.halo-tree .node-title-disabled {
+  padding: 3px 6px;
+  border-radius: 3px;
+  background-color: #444;
+  opacity: 1;
+  cursor: not-allowed;
+  margin: 0 2px;
+  color: #999; /* Texto gris para deshabilitado */
+}
+.halo-tree .node-title-disabled:hover {
   background-color: #444;
 }
-
-.yc-dark .yc-calendar__day--otherMonth {
-  color: #666;
+.halo-tree .node-selected {
+  border: 1px solid #4caf50; /* Verde para coincidir con PrimeVue */
+  background-color: #4caf50; /* Verde claro para seleccionado */
+  color: #fff; /* Texto blanco */
 }
-
-.yc-dark .yc-calendar {
-  background-color: #333;
-  color: #e0e0e0;
-  border: 1px solid #444;
-  box-sizing: border-box; /* Evitar que el borde afecte el tamaño */
-}
-
-.yc-dark .yc-calendar__title {
-  color: #e0e0e0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+.halo-tree .node-title.node-searched {
+  border: 1px solid #ff9800; /* Naranja para buscado */
+  background-color: #ff9800; /* Naranja claro */
+  color: #fff; /* Texto blanco */
 }

@@ -3,6 +3,7 @@ import { App, Plugin } from 'vue';
 import TreeView from './components/TreeView.vue';
 import SelectTree from './components/SelectTree.vue';
 import { TreeViewNode, Position, EmitEventArgs, TreeContext, TreeExposedMethods } from './types/index';
+import './style.css';
 
 const VueTree: Plugin = {
   install(app: App) {

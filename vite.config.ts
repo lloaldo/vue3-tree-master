@@ -47,9 +47,14 @@ export default defineConfig({
         globals: {
           vue: 'Vue',
         },
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.type === 'asset' && (assetInfo.name || '').endsWith('.css')) {
+            return 'style.css';
+          }
+          return '[name][extname]';
+        },
         exports: 'named',
         preserveModules: false,
-        // Elimina entryFileNames para evitar conflictos
       },
     },
   },
