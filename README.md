@@ -11,6 +11,7 @@ Vue3-Tree is a Vue 3 component library designed to create interactive tree struc
 - **Node Click Handling**: Select nodes with a click and handle selection changes via events.
 - **Customization**: Render custom nodes via a template function (`tpl`).
 - **Maximum Level Support**: Limit the depth of the tree.
+- **Dark Mode Support**: Toggle between light and dark themes for improved accessibility and user experience.
 - **TypeScript Support**: Fully typed with TypeScript for robust development.
 - **Vue 3 Compatibility**: Built with the Composition API.
 - **Animated Transitions**: Smooth expand/collapse animations for nodes (implemented via `CollapseTransition.vue`).
@@ -70,20 +71,22 @@ Vue3-Tree provides components to create interactive tree structures. The main co
 
 ### Basic Example
 
-Create a simple tree with static nodes:
+Create a simple tree with static nodes and optional dark mode:
 
 ```vue
 <!-- App.vue -->
 <template>
   <div>
-    <Tree :data="treeData" />
+    <Tree :data="treeData" :darkMode="isDarkMode" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import Tree from 'vue3-tree';
 import type { TreeNode } from 'vue3-tree';
+
+const isDarkMode = ref<boolean>(false);
 
 const treeData = reactive<TreeNode[]>([
   {
@@ -103,7 +106,7 @@ const treeData = reactive<TreeNode[]>([
 </script>
 ```
 
-This renders a tree with `Node 1` (expanded, with two children) and `Node 2`.
+This renders a tree with `Node 1` (expanded, with two children) and `Node 2`. Set `darkMode` to `true` to enable the dark theme.
 
 ### Handling Node Clicks
 
@@ -113,7 +116,7 @@ Handle node selection with the `node-click` event to perform actions when a node
 <!-- App.vue -->
 <template>
   <div>
-    <Tree :data="treeData" @node-click="handleNodeClick" />
+    <Tree :data="treeData" :darkMode="isDarkMode" @node-click="handleNodeClick" />
     <p v-if="lastClickedNode">Last clicked node: {{ lastClickedNode }}</p>
   </div>
 </template>
@@ -122,6 +125,8 @@ Handle node selection with the `node-click` event to perform actions when a node
 import { reactive, ref } from 'vue';
 import Tree from 'vue3-tree';
 import type { TreeNode } from 'vue3-tree';
+
+const isDarkMode = ref<boolean>(false);
 
 const treeData = reactive<TreeNode[]>([
   {
@@ -147,6 +152,49 @@ const handleNodeClick = (node: TreeNode, selected: boolean) => {
 - `@node-click`: Emitted when a node is clicked, providing the node and its selection state.
 - In single-selection mode (`multiple: false`), clicking a node deselects others. In multiple-selection mode (`multiple: true`), nodes toggle their selection state.
 
+### Dark Mode Support
+
+Toggle between light and dark themes using the `darkMode` prop. The component applies a `.dark-mode` class internally to switch styles, ensuring compatibility with other libraries by using scoped styles.
+
+```vue
+<!-- App.vue -->
+<template>
+  <div>
+    <button @click="toggleDarkMode">Toggle Dark Mode</button>
+    <Tree :data="treeData" :darkMode="isDarkMode" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { reactive, ref } from 'vue';
+import Tree from 'vue3-tree';
+import type { TreeNode } from 'vue3-tree';
+
+const isDarkMode = ref<boolean>(false);
+
+const treeData = reactive<TreeNode[]>([
+  {
+    id: '1',
+    title: 'Node 1',
+    expanded: true,
+    children: [
+      { id: '1-1', title: 'Node 1-1' },
+      { id: '1-2', title: 'Node 1-2' },
+    ],
+  },
+  { id: '2', title: 'Node 2' },
+]);
+
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value;
+};
+</script>
+```
+
+- **Light Mode**: Uses light backgrounds (e.g., white) and dark text for better readability in bright environments.
+- **Dark Mode**: Switches to dark backgrounds (e.g., dark gray) and light text for reduced eye strain in low-light conditions.
+- Styles are scoped to avoid conflicts with other CSS frameworks or libraries.
+
 ### Asynchronous Node Loading
 
 Enable asynchronous node loading with the `async` property and handle the `async-load-nodes` event. An animated SVG indicator (implemented in `Loading.vue`) is displayed when `node.loading` is `true`.
@@ -154,14 +202,16 @@ Enable asynchronous node loading with the `async` property and handle the `async
 ```vue
 <template>
   <div>
-    <Tree :data="treeData" @async-load-nodes="asyncLoad" />
+    <Tree :data="treeData" :darkMode="isDarkMode" @async-load-nodes="asyncLoad" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import Tree from 'vue3-tree';
 import type { TreeNode } from 'vue3-tree';
+
+const isDarkMode = ref<boolean>(false);
 
 const treeData = reactive<TreeNode[]>([
   {
@@ -203,15 +253,18 @@ Enable checkboxes for multiple selection:
       :data="treeData"
       :multiple="true"
       :halfcheck="true"
+      :darkMode="isDarkMode"
       @node-check="onNodeCheck"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import Tree from 'vue3-tree';
 import type { TreeNode } from 'vue3-tree';
+
+const isDarkMode = ref<boolean>(false);
 
 const treeData = reactive<TreeNode[]>([
   { id: '1', title: 'Node 1', children: [{ id: '1-1', title: 'Node 1-1' }] },
@@ -239,15 +292,18 @@ Enable drag-and-drop to reorder nodes:
       :data="treeData"
       :draggable="true"
       :drag-after-expanded="true"
+      :darkMode="isDarkMode"
       @node-drop="onNodeDrop"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import Tree from 'vue3-tree';
 import type { TreeNode } from 'vue3-tree';
+
+const isDarkMode = ref<boolean>(false);
 
 const treeData = reactive<TreeNode[]>([
   { id: '1', title: 'Node 1', children: [{ id: '1-1', title: 'Node 1-1' }] },
@@ -277,7 +333,7 @@ Filter nodes with a search input:
       placeholder="Search..."
       @input="search"
     />
-    <Tree ref="tree" :data="treeData" />
+    <Tree ref="tree" :data="treeData" :darkMode="isDarkMode" />
   </div>
 </template>
 
@@ -286,6 +342,7 @@ import { ref, reactive } from 'vue';
 import Tree from 'vue3-tree';
 import type { TreeNode, TreeExposedMethods } from 'vue3-tree';
 
+const isDarkMode = ref<boolean>(false);
 const searchTerm = ref<string>('');
 const tree = ref<TreeExposedMethods | null>(null);
 
@@ -309,21 +366,23 @@ Customize node rendering with the `tpl` prop:
 ```vue
 <template>
   <div>
-    <Tree :data="treeData" :tpl="customTemplate" />
+    <Tree :data="treeData" :tpl="customTemplate" :darkMode="isDarkMode" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, h, type VNode } from 'vue';
+import { reactive, h, ref, type VNode } from 'vue';
 import Tree from 'vue3-tree';
 import type { TreeNode } from 'vue3-tree';
+
+const isDarkMode = ref<boolean>(false);
 
 const treeData = reactive<TreeNode[]>([
   { id: '1', title: 'Node 1', children: [{ id: '1-1', title: 'Node 1-1' }] },
 ]);
 
 const customTemplate = (node: TreeNode, ctx: { level: number; index: number }): VNode => {
-  return h('span', { style: { color: 'blue' } }, node.title);
+  return h('span', { style: { color: isDarkMode.value ? 'lightblue' : 'blue' } }, node.title);
 };
 </script>
 ```
@@ -348,6 +407,7 @@ const customTemplate = (node: TreeNode, ctx: { level: number; index: number }): 
 | `topMustExpand`       | `boolean`                                                           | Forces top-level nodes to expand.                                         | `false`      |
 | `allowGetParentNode`  | `boolean`                                                           | Allows accessing parent node references.                                  | `false`      |
 | `level`               | `number`                                                            | Current level of the tree (internal use).                                 | `0`          |
+| `darkMode`            | `boolean`                                                           | Enables dark theme with dark backgrounds and light text.                  | `false`      |
 
 ### `Tree` Events
 
