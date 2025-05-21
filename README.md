@@ -1,6 +1,6 @@
-# Vue3-Tree: A Vue 3 Tree Component Library
+# vue3-tree-master: A Vue 3 Tree Component Library
 
-Vue3-Tree is a Vue 3 component library designed to create interactive tree structures with support for asynchronous node loading, multiple selection, search, drag-and-drop, and customization. It is ideal for applications requiring dynamic, hierarchical data display with TypeScript support.
+vue3-tree-master is a Vue 3 component library designed to create interactive tree structures with support for asynchronous node loading, multiple selection, search, drag-and-drop, and customization. It is ideal for applications requiring dynamic, hierarchical data display with TypeScript support.
 
 ## Key Features
 
@@ -29,14 +29,14 @@ Vue3-Tree is a Vue 3 component library designed to create interactive tree struc
 1. **Install via npm** (once published):
 
    ```bash
-   npm install vue3-tree
+   npm install vue3-tree-master-master
    ```
 
    Alternatively, clone the repository for development:
 
    ```bash
    git clone <repository-url>
-   cd vue3-tree
+   cd vue3-tree-master
    ```
 
 2. **Install Dependencies**:
@@ -67,7 +67,7 @@ Vue3-Tree is a Vue 3 component library designed to create interactive tree struc
 
 ## Usage
 
-Vue3-Tree provides components to create interactive tree structures. The main component is `Tree.vue`, which supports various features for dynamic trees. Below are examples demonstrating key functionalities.
+vue3-tree-master provides components to create interactive tree structures. The main component is `Tree.vue`, which supports various features for dynamic trees. Below are examples demonstrating key functionalities.
 
 ### Basic Example
 
@@ -83,8 +83,8 @@ Create a simple tree with static nodes and optional dark mode:
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import Tree from 'vue3-tree';
-import type { TreeNode } from 'vue3-tree';
+import Tree from 'vue3-tree-master';
+import type { TreeNode } from 'vue3-tree-master';
 
 const isDarkMode = ref<boolean>(false);
 
@@ -123,8 +123,8 @@ Handle node selection with the `node-click` event to perform actions when a node
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import Tree from 'vue3-tree';
-import type { TreeNode } from 'vue3-tree';
+import Tree from 'vue3-tree-master';
+import type { TreeNode } from 'vue3-tree-master';
 
 const isDarkMode = ref<boolean>(false);
 
@@ -167,8 +167,8 @@ Toggle between light and dark themes using the `darkMode` prop. The component ap
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import Tree from 'vue3-tree';
-import type { TreeNode } from 'vue3-tree';
+import Tree from 'vue3-tree-master';
+import type { TreeNode } from 'vue3-tree-master';
 
 const isDarkMode = ref<boolean>(false);
 
@@ -208,8 +208,8 @@ Enable asynchronous node loading with the `async` property and handle the `async
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import Tree from 'vue3-tree';
-import type { TreeNode } from 'vue3-tree';
+import Tree from 'vue3-tree-master';
+import type { TreeNode } from 'vue3-tree-master';
 
 const isDarkMode = ref<boolean>(false);
 
@@ -261,8 +261,8 @@ Enable checkboxes for multiple selection:
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import Tree from 'vue3-tree';
-import type { TreeNode } from 'vue3-tree';
+import Tree from 'vue3-tree-master';
+import type { TreeNode } from 'vue3-tree-master';
 
 const isDarkMode = ref<boolean>(false);
 
@@ -300,8 +300,8 @@ Enable drag-and-drop to reorder nodes:
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import Tree from 'vue3-tree';
-import type { TreeNode } from 'vue3-tree';
+import Tree from 'vue3-tree-master';
+import type { TreeNode } from 'vue3-tree-master';
 
 const isDarkMode = ref<boolean>(false);
 
@@ -339,8 +339,8 @@ Filter nodes with a search input:
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import Tree from 'vue3-tree';
-import type { TreeNode, TreeExposedMethods } from 'vue3-tree';
+import Tree from 'vue3-tree-master';
+import type { TreeNode, TreeExposedMethods } from 'vue3-tree-master';
 
 const isDarkMode = ref<boolean>(false);
 const searchTerm = ref<string>('');
@@ -372,8 +372,8 @@ Customize node rendering with the `tpl` prop:
 
 <script setup lang="ts">
 import { reactive, h, ref, type VNode } from 'vue';
-import Tree from 'vue3-tree';
-import type { TreeNode } from 'vue3-tree';
+import Tree from 'vue3-tree-master';
+import type { TreeNode } from 'vue3-tree-master';
 
 const isDarkMode = ref<boolean>(false);
 
@@ -454,4 +454,4 @@ Report issues at `<repository-url>/issues`.
 
 ## License
 
-Vue3-Tree is licensed under the MIT License. See the `LICENSE` file for details.
+vue3-tree-master is licensed under the MIT License. See the `LICENSE` file for details.
