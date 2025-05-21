@@ -1,5 +1,5 @@
 <template>
-  <div class="halo-tree">
+  <div class="halo-tree" :class="{ 'dark-mode': props.darkMode }">
     <TreeUl
       :data="data"
       :multiple="multiple"
@@ -37,6 +37,7 @@ const props = defineProps<{
   maxLevel?: number;
   topMustExpand?: boolean;
   allowGetParentNode?: boolean;
+  darkMode?: boolean;
 }>();
 
 const emit = defineEmits<{

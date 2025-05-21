@@ -1,13 +1,18 @@
 <template>
-  <div>
+  <div :class="{ 'dark-mode': isDarkMode }">
+    <div class="theme-toggle">
+      <button class="theme-btn" @click="toggleDarkMode">
+        {{ isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro' }}
+      </button>
+    </div>
     <div class="tree3">
       <input
         class="tree-search-input"
         type="text"
         v-model="searchword"
-        placeholder="search..."
+        placeholder="buscar..."
       />
-      <button class="tree-search-btn" type="button" @click="search">search</button>
+      <button class="tree-search-btn" type="button" @click="search">Buscar</button>
       <TreeView
         ref="tree1"
         :can-delete-root="true"
@@ -16,6 +21,7 @@
         :tpl="tpl"
         :halfcheck="true"
         :multiple="true"
+        :darkMode="isDarkMode"
         @node-click="handleNodeClick"
       />
     </div>
@@ -26,6 +32,7 @@
         :data="treeData2"
         :draggable="true"
         :multiple="false"
+        :darkMode="isDarkMode"
         @node-check="nodechecked"
         @async-load-nodes="asyncLoad2"
       />
@@ -36,6 +43,7 @@
         v-model="initSelected"
         :multiple="true"
         :draggable="true"
+        :darkMode="isDarkMode"
       />
     </div>
   </div>
@@ -50,6 +58,7 @@ import type { TreeViewNode, TreeExposedMethods } from '@/types';
 // Datos reactivos
 const searchword = ref<string>('');
 const initSelected = ref<string[]>(['node 1-1']);
+const isDarkMode = ref<boolean>(false); // Estado para modo oscuro
 
 const treeData1 = reactive<TreeViewNode[]>([
   {
@@ -133,8 +142,12 @@ onMounted(() => {
 });
 
 // Métodos
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value;
+};
+
 const nodechecked = (node: TreeViewNode, checked: boolean) => {
-  alert(`That a node-check event ... ${node.title} ${checked}`);
+  alert(`Evento de node-check: ${node.title} ${checked}`);
 };
 
 const tpl = (node: TreeViewNode, ctx: { level: number; index: number }, parent: TreeViewNode | null, index: number): VNode => {
@@ -216,12 +229,29 @@ const search = () => {
 };
 
 const handleNodeClick = (node: TreeViewNode, selected: boolean) => {
-  // lastClickedNode.value = node.title;
-  alert(`Node click: ${node.title} ${selected}`);
+  alert(`Clic en nodo: ${node.title} ${selected}`);
 };
 </script>
 
 <style scoped>
+/* Estilos base (Modo Claro) */
+.theme-toggle {
+  margin-bottom: 10px;
+}
+
+.theme-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f5f5f5;
+  color: #333;
+  cursor: pointer;
+}
+
+.theme-btn:hover {
+  background-color: #e0e0e0;
+}
+
 .tree3 {
   float: left;
   width: 33%;
@@ -230,33 +260,28 @@ const handleNodeClick = (node: TreeViewNode, selected: boolean) => {
   border: 1px dotted #ccccdd;
   overflow: auto;
   height: 800px;
+  background-color: #fff; /* Fondo blanco para modo claro */
 }
 
-.treebtn1 {
+.treebtn1,
+.treebtn2,
+.treebtn3 {
   background-color: transparent;
   border: 1px solid #ccc;
   padding: 1px 3px;
   border-radius: 5px;
   margin-right: 5px;
-  color: rgb(148, 147, 147);
+  color: #666;
 }
 
 .treebtn2 {
-  background-color: transparent;
-  border: 1px solid #ccc;
   padding: 3px 5px;
-  border-radius: 5px;
   margin-left: 5px;
-  color: rgb(97, 97, 97);
 }
 
 .treebtn3 {
-  background-color: transparent;
-  border: 1px solid #ccc;
   padding: 3px 5px;
-  border-radius: 5px;
   margin-left: 5px;
-  color: rgb(63, 63, 63);
 }
 
 .tree-search-input {
@@ -265,6 +290,13 @@ const handleNodeClick = (node: TreeViewNode, selected: boolean) => {
   outline: none;
   border-radius: 6px;
   border: 1px solid #ccc;
+  background-color: #fff; /* Fondo blanco */
+  color: #333; /* Texto oscuro */
+}
+
+.tree-search-input:focus {
+  border: 1px solid #4caf50;
+  box-shadow: 0 2px 2px rgba(76, 175, 80, 0.2);
 }
 
 .tree-search-btn {
@@ -272,9 +304,14 @@ const handleNodeClick = (node: TreeViewNode, selected: boolean) => {
   padding: 6px 8px;
   outline: none;
   border-radius: 6px;
-  background-color: rgb(218, 218, 218);
-  border: 1px solid rgb(226, 225, 225);
-  color: rgb(117, 117, 117);
+  background-color: #dadada;
+  border: 1px solid #e2e1e1;
+  color: #333;
+  cursor: pointer;
+}
+
+.tree-search-btn:hover {
+  background-color: #ccc;
 }
 
 /* Forzar visibilidad */
@@ -287,5 +324,49 @@ const handleNodeClick = (node: TreeViewNode, selected: boolean) => {
   visibility: visible !important;
   opacity: 1 !important;
   height: auto !important;
+}
+
+/* Estilos para Modo Oscuro */
+.dark-mode .theme-btn {
+  border: 1px solid #888;
+  background-color: #444;
+  color: #e0e0e0;
+}
+
+.dark-mode .theme-btn:hover {
+  background-color: #555;
+}
+
+.dark-mode .tree3 {
+  border: 1px dotted #666;
+  background-color: #2a2a2a; /* Fondo oscuro */
+}
+
+.dark-mode .treebtn1,
+.dark-mode .treebtn2,
+.dark-mode .treebtn3 {
+  border: 1px solid #888;
+  color: #e0e0e0;
+}
+
+.dark-mode .tree-search-input {
+  border: 1px solid #888;
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+.dark-mode .tree-search-input:focus {
+  border: 1px solid #4caf50;
+  box-shadow: 0 2px 2px rgba(76, 175, 80, 0.2);
+}
+
+.dark-mode .tree-search-btn {
+  background-color: #444;
+  border: 1px solid #666;
+  color: #e0e0e0;
+}
+
+.dark-mode .tree-search-btn:hover {
+  background-color: #555;
 }
 </style>

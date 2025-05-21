@@ -1,5 +1,5 @@
 <template>
-  <div class="tree-container">
+  <div class="tree-container" :class="{ 'dark-mode': props.darkMode }">
     <div class="tag-box-container">
       <div class="tag-box" ref="txtbox" @click="open = !open" @mouseleave="leaveTextTag">
         <div class="tag blank" v-show="!selectedItems.length">{{ pleasechoosetext }}</div>
@@ -65,6 +65,7 @@ const props = defineProps<{
   dragAfterExpanded?: boolean;
   tpl?: (node: TreeViewNode, ctx: any, parent: TreeViewNode | null, index: number, props: any) => any;
   searchFilter?: (node: TreeViewNode) => boolean;
+  darkMode?: boolean;
 }>();
 
 // Valores por defecto
@@ -75,6 +76,7 @@ const defaultProps = {
   multiple: false,
   draggable: false,
   dragAfterExpanded: true,
+  darkMode: false,
 };
 
 // Emits
@@ -109,6 +111,7 @@ const vTreeObj = computed(() => ({
   multiple: props.multiple ?? defaultProps.multiple,
   draggable: props.draggable ?? defaultProps.draggable,
   dragAfterExpanded: props.dragAfterExpanded ?? defaultProps.dragAfterExpanded,
+  darkMode: props.darkMode ?? defaultProps.darkMode,
 }));
 
 
@@ -242,6 +245,7 @@ const initTreeStatus = (data: TreeViewNode[]) => {
   height: 36px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  background-color: #fff; /* Fondo blanco para modo claro */
 }
 
 .tag-box-container {
@@ -260,7 +264,8 @@ const initTreeStatus = (data: TreeViewNode[]) => {
   margin-top: 3px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Sombra más clara para modo claro */
+  background-color: #fff; /* Fondo blanco */
 }
 
 .tree-box ul {
@@ -278,6 +283,13 @@ const initTreeStatus = (data: TreeViewNode[]) => {
   text-indent: 1em;
   border-radius: 6px;
   outline: none;
+  background-color: #fff; /* Fondo blanco para input de búsqueda */
+  color: #333; /* Texto oscuro */
+}
+
+.search-input:focus {
+  border: 1px solid #4caf50;
+  box-shadow: 0 2px 2px rgba(76, 175, 80, 0.2);
 }
 
 .tag {
@@ -290,11 +302,12 @@ const initTreeStatus = (data: TreeViewNode[]) => {
   line-height: 26px;
   text-align: center;
   border-radius: 6px;
-  background-color: #ffffff;
+  background-color: #f5f5f5; /* Fondo gris claro para etiquetas */
   border: 1px solid #ccc;
   user-select: none;
   cursor: default;
   transition: padding 0.3s;
+  color: #333; /* Texto oscuro */
 }
 
 .tag .rmNode {
@@ -312,6 +325,7 @@ const initTreeStatus = (data: TreeViewNode[]) => {
 .blank {
   background-color: #fff;
   border: 0;
+  color: #666; /* Texto gris para marcador de posición */
 }
 
 .rmNode {
@@ -322,8 +336,8 @@ const initTreeStatus = (data: TreeViewNode[]) => {
   height: 15px;
   line-height: 15px;
   font-size: 12px;
-  background-color: #b3b3b3;
-  color: #ececec;
+  background-color: #ccc;
+  color: #333;
   border-radius: 50%;
   cursor: pointer;
 }
@@ -337,5 +351,44 @@ const initTreeStatus = (data: TreeViewNode[]) => {
 .fade-leave-active {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+/* Estilos para Modo Oscuro */
+.tree-container.dark-mode {
+  border: 1px solid #666;
+  background-color: #2a2a2a; /* Fondo oscuro */
+}
+
+.tree-container.dark-mode .tree-box {
+  border: 1px solid #666;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.4); /* Sombra más oscura */
+  background-color: #2a2a2a; /* Fondo oscuro */
+}
+
+.tree-container.dark-mode .search-input {
+  border: 1px solid #888;
+  background-color: #333; /* Fondo oscuro para input de búsqueda */
+  color: #e0e0e0; /* Texto claro */
+}
+
+.tree-container.dark-mode .search-input:focus {
+  border: 1px solid #4caf50;
+  box-shadow: 0 2px 2px rgba(76, 175, 80, 0.2);
+}
+
+.tree-container.dark-mode .tag {
+  background-color: #444; /* Fondo más oscuro para etiquetas */
+  border: 1px solid #888;
+  color: #e0e0e0; /* Texto claro */
+}
+
+.tree-container.dark-mode .blank {
+  background-color: #2a2a2a;
+  color: #999; /* Texto gris para marcador de posición */
+}
+
+.tree-container.dark-mode .rmNode {
+  background-color: #b3b3b3;
+  color: #ececec;
 }
 </style>

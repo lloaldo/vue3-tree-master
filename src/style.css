@@ -1,70 +1,51 @@
 /* src/style.css */
-.halo-tree li span:hover {
-  background-color: rgba(255, 255, 255, 0.1); /* Fondo sutil al pasar el ratón */
-}
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.1s; /* Transición más rápida */
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-.halo-tree .expand-enter-active {
-  transition: all 0.3s ease; /* Transición más rápida */
-  height: 40px; /* Altura ajustada */
-  overflow: hidden;
-}
-.halo-tree .expand-leave-active {
-  transition: all 0.3s ease;
-  height: 0px;
-  overflow: hidden;
-}
-.halo-tree .expand-enter,
-.halo-tree .expand-leave {
-  height: 0;
-  opacity: 0;
-}
+/* Estilos base (Modo Claro) */
 .halo-tree {
   font-size: 14px;
-  color: #e0e0e0; /* Texto claro para fondo oscuro */
-  -webkit-transition: 0.3s height ease-in-out, 0.3s padding-top ease-in-out,
-    0.3s padding-bottom ease-in-out;
-  transition: 0.3s height ease-in-out, 0.3s padding-top ease-in-out,
-    0.3s padding-bottom ease-in-out;
+  color: #333; /* Texto oscuro para modo claro */
+  transition: 0.3s height ease-in-out, 0.3s padding-top ease-in-out, 0.3s padding-bottom ease-in-out;
 }
+
+.halo-tree li span:hover {
+  background-color: rgba(0, 0, 0, 0.1); /* Fondo sutil al pasar el ratón en modo claro */
+}
+
 .halo-tree ul {
   box-sizing: border-box;
 }
+
 .halo-tree ul,
 .halo-tree li {
   list-style-type: none;
   text-align: left;
 }
+
 .halo-tree .inputCheck {
   display: inline-block;
   position: relative;
   width: 14px;
   height: 14px;
-  border: 1px solid #888;
+  border: 1px solid #ccc;
   border-radius: 2px;
   top: 4px;
   text-align: center;
   font-size: 14px;
   line-height: 14px;
-  background-color: #2a2a2a; /* Fondo oscuro para casillas */
+  background-color: #fff; /* Fondo blanco para casillas en modo claro */
 }
+
 .halo-tree .inputCheck.notAllNodes:before {
   content: "\2713";
   display: block;
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: #888;
+  background-color: #ccc;
   z-index: 1;
-  color: #fff;
+  color: #333;
 }
+
 .halo-tree .inputCheck.box-checked:after {
   content: "\2713";
   display: block;
@@ -72,11 +53,13 @@
   z-index: 1;
   width: 100%;
   text-align: center;
-  color: #fff;
+  color: #333;
 }
+
 .halo-tree .box-halfchecked {
-  background-color: #888;
+  background-color: #ccc;
 }
+
 .halo-tree .box-halfchecked:after {
   content: "\2713";
   display: block;
@@ -84,8 +67,9 @@
   z-index: 1;
   width: 100%;
   text-align: center;
-  color: #fff;
+  color: #333;
 }
+
 .halo-tree .check {
   display: block;
   position: absolute;
@@ -94,22 +78,25 @@
   height: 16px;
   left: -5px;
   top: -4px;
-  border: 1px solid #666;
+  border: 1px solid #999;
   opacity: 0;
   cursor: pointer;
   z-index: 2;
 }
+
 .halo-tree .chkDisabled {
-  background-color: #444;
+  background-color: #e0e0e0;
   opacity: 1;
   cursor: not-allowed;
 }
+
 .halo-tree li {
   margin: 0;
-  padding: 3px 5px 3px 15px; /* Espaciado vertical reducido */
+  padding: 3px 5px 3px 15px;
   position: relative;
   list-style: none;
 }
+
 .halo-tree li:after,
 .halo-tree li:before {
   content: "";
@@ -118,128 +105,282 @@
   right: auto;
   border-width: 1px;
 }
+
 .halo-tree li:before {
-  border-left: 1px dashed #999 !important; /* Restaurado a dashed #999 con mayor especificidad */
+  border-left: 1px dashed #666 !important;
   bottom: 20px;
   height: 100%;
   top: -8px;
   width: 1px;
 }
+
 .halo-tree li:after {
-  border-top: 1px dashed #999 !important; /* Restaurado a dashed #999 con mayor especificidad */
+  border-top: 1px dashed #666 !important;
   height: 15px;
   top: 12px;
   width: 25px;
 }
+
 .halo-tree li:last-child::before {
   height: 20px;
 }
+
 .halo-tree > li.first-node:before {
   top: 12px;
 }
+
 .halo-tree > li.second-node:before {
   top: 4px;
 }
+
 .halo-tree > li.first-node.only-node::before {
   border-left: none !important;
 }
+
 .halo-tree > li.only-node:after {
   border-top: none !important;
 }
+
 .halo-tree > ul {
   padding-left: 0;
 }
+
 .halo-tree ul {
   padding-left: 17px;
-  padding-top: 5px; /* Espaciado superior reducido */
+  padding-top: 5px;
 }
+
 .halo-tree .tree-expand {
   display: inline-block;
   width: 14px;
   height: 14px;
   text-align: center;
   line-height: 13px;
-  border: 1px solid #888;
+  border: 1px solid #ccc;
   border-radius: 2px;
-  background: #2a2a2a; /* Fondo oscuro para botones */
-  color: #e0e0e0; /* Texto claro */
+  background: #fff; /* Fondo blanco para botones de expansión en modo claro */
+  color: #333; /* Texto oscuro */
   font-style: normal;
 }
+
 .halo-tree .tree-open {
   line-height: 13px;
 }
+
 .halo-tree .tree-close:after {
   content: "+";
 }
+
 .halo-tree .tree-open:after {
   content: "\2013";
 }
+
 .halo-tree .tree-empty:after {
   content: "";
 }
+
 .halo-tree .tree-node-el {
-  background-color: #2a2a2a; /* Fondo oscuro para nodos */
+  background-color: #fff; /* Fondo blanco para nodos en modo claro */
   padding-left: 2px;
   position: relative;
   z-index: 3;
 }
+
 .halo-tree li.leaf {
   padding-left: 15px;
 }
+
 .halo-tree li.leaf:after {
   content: "";
   left: -7px;
   position: absolute;
   right: auto;
   border-width: 1px;
-  border-top: 1px dashed #999 !important; /* Restaurado a dashed #999 con mayor especificidad */
+  border-top: 1px dashed #666 !important;
   height: 15px;
   top: 12px;
   width: 25px;
 }
+
 .halo-tree-search-box {
   height: 18px;
   line-height: 18px;
   outline: none;
-  border: 1px solid #888;
+  border: 1px solid #ccc;
   border-radius: 3px;
-  background-color: #333; /* Fondo oscuro para el campo de búsqueda */
-  color: #e0e0e0; /* Texto claro */
+  background-color: #fff; /* Fondo blanco para campo de búsqueda en modo claro */
+  color: #333; /* Texto oscuro */
 }
+
 .halo-tree-search-box:focus {
-  border: 1px solid #4caf50; /* Verde para coincidir con PrimeVue */
+  border: 1px solid #4caf50;
   box-shadow: 0 2px 2px rgba(76, 175, 80, 0.2);
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
+
 .halo-tree .node-title {
   padding: 3px 6px;
   border-radius: 3px;
   cursor: pointer;
   margin: 0 2px;
-  color: #e0e0e0; /* Texto claro */
+  color: #333; /* Texto oscuro */
 }
+
 .halo-tree .node-title:hover {
-  background-color: #444; /* Fondo más oscuro al pasar el ratón */
+  background-color: #e0e0e0; /* Gris claro al pasar el ratón */
 }
+
 .halo-tree .node-title-disabled {
   padding: 3px 6px;
   border-radius: 3px;
-  background-color: #444;
+  background-color: #e0e0e0;
   opacity: 1;
   cursor: not-allowed;
   margin: 0 2px;
-  color: #999; /* Texto gris para deshabilitado */
+  color: #666; /* Texto gris para nodos deshabilitados */
 }
+
 .halo-tree .node-title-disabled:hover {
+  background-color: #e0e0e0;
+}
+
+.halo-tree .node-selected {
+  border: 1px solid #4caf50;
+  background-color: #e8f5e9; /* Verde claro para nodos seleccionados en modo claro */
+  color: #333; /* Texto oscuro */
+}
+
+.halo-tree .node-title.node-searched {
+  border: 1px solid #ff9800;
+  background-color: #fff3e0; /* Naranja claro para nodos buscados en modo claro */
+  color: #333; /* Texto oscuro */
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.1s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.halo-tree .expand-enter-active {
+  transition: all 0.3s ease;
+  height: 40px;
+  overflow: hidden;
+}
+
+.halo-tree .expand-leave-active {
+  transition: all 0.3s ease;
+  height: 0px;
+  overflow: hidden;
+}
+
+.halo-tree .expand-enter,
+.halo-tree .expand-leave {
+  height: 0;
+  opacity: 0;
+}
+
+/* Estilos para Modo Oscuro */
+.halo-tree.dark-mode {
+  color: #e0e0e0; /* Texto claro para modo oscuro */
+}
+
+.halo-tree.dark-mode li span:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Fondo sutil al pasar el ratón */
+}
+
+.halo-tree.dark-mode .inputCheck {
+  border: 1px solid #888;
+  background-color: #2a2a2a; /* Fondo oscuro para casillas */
+}
+
+.halo-tree.dark-mode .inputCheck.notAllNodes:before {
+  background-color: #888;
+  color: #fff;
+}
+
+.halo-tree.dark-mode .inputCheck.box-checked:after {
+  color: #fff;
+}
+
+.halo-tree.dark-mode .box-halfchecked {
+  background-color: #888;
+}
+
+.halo-tree.dark-mode .box-halfchecked:after {
+  color: #fff;
+}
+
+.halo-tree.dark-mode .check {
+  border: 1px solid #666;
+}
+
+.halo-tree.dark-mode .chkDisabled {
   background-color: #444;
 }
-.halo-tree .node-selected {
-  border: 1px solid #4caf50; /* Verde para coincidir con PrimeVue */
-  background-color: #4caf50; /* Verde claro para seleccionado */
+
+.halo-tree.dark-mode li:before {
+  border-left: 1px dashed #999 !important;
+}
+
+.halo-tree.dark-mode li:after {
+  border-top: 1px dashed #999 !important;
+}
+
+.halo-tree.dark-mode li.leaf:after {
+  border-top: 1px dashed #999 !important;
+}
+
+.halo-tree.dark-mode .tree-expand {
+  border: 1px solid #888;
+  background: #2a2a2a; /* Fondo oscuro para botones de expansión */
+  color: #e0e0e0; /* Texto claro */
+}
+
+.halo-tree.dark-mode .tree-node-el {
+  background-color: #2a2a2a; /* Fondo oscuro para nodos */
+}
+
+.halo-tree.dark-mode .halo-tree-search-box {
+  border: 1px solid #888;
+  background-color: #333; /* Fondo oscuro para campo de búsqueda */
+  color: #e0e0e0; /* Texto claro */
+}
+
+.halo-tree.dark-mode .halo-tree-search-box:focus {
+  border: 1px solid #4caf50;
+  box-shadow: 0 2px 2px rgba(76, 175, 80, 0.2);
+}
+
+.halo-tree.dark-mode .node-title {
+  color: #e0e0e0; /* Texto claro */
+}
+
+.halo-tree.dark-mode .node-title:hover {
+  background-color: #444; /* Fondo más oscuro al pasar el ratón */
+}
+
+.halo-tree.dark-mode .node-title-disabled {
+  background-color: #444;
+  color: #999; /* Texto gris para nodos deshabilitados */
+}
+
+.halo-tree.dark-mode .node-title-disabled:hover {
+  background-color: #444;
+}
+
+.halo-tree.dark-mode .node-selected {
+  border: 1px solid #4caf50;
+  background-color: #4caf50; /* Verde para nodos seleccionados */
   color: #fff; /* Texto blanco */
 }
-.halo-tree .node-title.node-searched {
-  border: 1px solid #ff9800; /* Naranja para buscado */
-  background-color: #ff9800; /* Naranja claro */
+
+.halo-tree.dark-mode .node-title.node-searched {
+  border: 1px solid #ff9800;
+  background-color: #ff9800; /* Naranja para nodos buscados */
   color: #fff; /* Texto blanco */
 }
