@@ -2,6 +2,9 @@
 
 vue3-tree-master is a Vue 3 component library designed to create interactive tree structures with support for asynchronous node loading, multiple selection, search, drag-and-drop, and customization. It is ideal for applications requiring dynamic, hierarchical data display with TypeScript support.
 
+![Demo](demo.gif)
+
+
 ## Key Features
 
 - **Asynchronous Node Loading**: Load child nodes asynchronously with an animated SVG indicator.
