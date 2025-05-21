@@ -17,7 +17,7 @@ importers:
         version: 22.15.3
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
-        version: 5.2.3(vite@6.3.3(@types/node@22.15.3))(vue@3.5.13(typescript@5.7.3))
+        version: 5.2.3(vite@6.3.5(@types/node@22.15.3))(vue@3.5.13(typescript@5.7.3))
       '@vue/tsconfig':
         specifier: ^0.7.0
         version: 0.7.0(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
@@ -28,11 +28,11 @@ importers:
         specifier: ~5.7.2
         version: 5.7.3
       vite:
-        specifier: ^6.2.0
-        version: 6.3.3(@types/node@22.15.3)
+        specifier: ^6.3.5
+        version: 6.3.5(@types/node@22.15.3)
       vite-plugin-dts:
         specifier: ^4.5.3
-        version: 4.5.3(@types/node@22.15.3)(rollup@4.40.1)(typescript@5.7.3)(vite@6.3.3(@types/node@22.15.3))
+        version: 4.5.3(@types/node@22.15.3)(rollup@4.40.1)(typescript@5.7.3)(vite@6.3.5(@types/node@22.15.3))
       vue-tsc:
         specifier: ^2.2.4
         version: 2.2.10(typescript@5.7.3)
@@ -745,8 +745,8 @@ packages:
       vite:
         optional: true
 
-  vite@6.3.3:
-    resolution: {integrity: sha512-5nXH+QsELbFKhsEfWLkHrvgRpTdGJzqOZ+utSdmPTvwHmvU6ITTm3xx+mRusihkcI8GeC7lCDyn3kDtiki9scw==}
+  vite@6.3.5:
+    resolution: {integrity: sha512-cZn6NDFE7wdTpINgs++ZJ4N49W2vRp8LCKrn3Ob1kYNtOo21vfDoaV5GzBfLU4MovSAB8uNRm4jgzVQZ+mBzPQ==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
     peerDependencies:
@@ -1042,9 +1042,9 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@vitejs/plugin-vue@5.2.3(vite@6.3.3(@types/node@22.15.3))(vue@3.5.13(typescript@5.7.3))':
+  '@vitejs/plugin-vue@5.2.3(vite@6.3.5(@types/node@22.15.3))(vue@3.5.13(typescript@5.7.3))':
     dependencies:
-      vite: 6.3.3(@types/node@22.15.3)
+      vite: 6.3.5(@types/node@22.15.3)
       vue: 3.5.13(typescript@5.7.3)
 
   '@volar/language-core@2.4.13':
@@ -1442,7 +1442,7 @@ snapshots:
     dependencies:
       inherits: 2.0.3
 
-  vite-plugin-dts@4.5.3(@types/node@22.15.3)(rollup@4.40.1)(typescript@5.7.3)(vite@6.3.3(@types/node@22.15.3)):
+  vite-plugin-dts@4.5.3(@types/node@22.15.3)(rollup@4.40.1)(typescript@5.7.3)(vite@6.3.5(@types/node@22.15.3)):
     dependencies:
       '@microsoft/api-extractor': 7.52.5(@types/node@22.15.3)
       '@rollup/pluginutils': 5.1.4(rollup@4.40.1)
@@ -1455,13 +1455,13 @@ snapshots:
       magic-string: 0.30.17
       typescript: 5.7.3
     optionalDependencies:
-      vite: 6.3.3(@types/node@22.15.3)
+      vite: 6.3.5(@types/node@22.15.3)
     transitivePeerDependencies:
       - '@types/node'
       - rollup
       - supports-color
 
-  vite@6.3.3(@types/node@22.15.3):
+  vite@6.3.5(@types/node@22.15.3):
     dependencies:
       esbuild: 0.25.3
       fdir: 6.4.4(picomatch@4.0.2)

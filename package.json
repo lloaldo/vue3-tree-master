@@ -39,7 +39,7 @@
     "@vue/tsconfig": "^0.7.0",
     "path": "^0.12.7",
     "typescript": "~5.7.2",
-    "vite": "^6.2.0",
+    "vite": "^6.3.5",
     "vite-plugin-dts": "^4.5.3",
     "vue-tsc": "^2.2.4"
   },
