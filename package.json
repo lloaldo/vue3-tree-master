@@ -15,7 +15,9 @@
     "./style.css": "./dist/style.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "README.md"
   ],
   "scripts": {
     "dev": "vite",
@@ -26,7 +28,11 @@
     "vue",
     "vue3",
     "tree",
-    "view"
+    "tree-view",
+    "vue-component",
+    "dark-mode",
+    "drag-and-drop",
+    "typescript"
   ],
   "author": "Domingo Albújar<dmingoalb@gmail.com>",
   "license": "MIT",
