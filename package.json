@@ -1,6 +1,6 @@
 {
   "name": "vue3-tree-master",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "A tree view component for Vue 3 applications",
   "main": "./dist/vue3-tree-master.cjs.js",
