@@ -32,7 +32,7 @@ vue3-tree-master is a Vue 3 component library designed to create interactive tre
 1. **Install via npm** (once published):
 
    ```bash
-   npm install vue3-tree-master-master
+   npm install vue3-tree-master
    ```
 
    Alternatively, clone the repository for development:
