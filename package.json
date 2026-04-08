@@ -40,14 +40,19 @@
     "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@types/node": "^22.14.1",
-    "@vitejs/plugin-vue": "^5.2.1",
-    "@vue/tsconfig": "^0.7.0",
+    "@types/node": "^25.5.2",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "@vue/tsconfig": "^0.9.1",
     "path": "^0.12.7",
-    "typescript": "~5.7.2",
-    "vite": "^6.3.5",
-    "vite-plugin-dts": "^4.5.3",
-    "vue-tsc": "^2.2.4"
+    "typescript": "~5.7.3",
+    "vite": "^8.0.7",
+    "vite-plugin-dts": "^4.5.4",
+    "vue-tsc": "^3.2.6"
+  },
+  "pnpm": {
+    "overrides": {
+      "rollup": ">=4.59.0"
+    }
   },
   "repository": {
     "type": "git",
